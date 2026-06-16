@@ -1,0 +1,33 @@
+name: ServerStats
+version: '1.0.0'
+main: it.markus.serverstats.ServerStats
+api-version: '1.21'
+description: Join/Quit-Broadcasts, Statistiken, Leaderboard und Meilensteine.
+author: Markus
+
+commands:
+  stats:
+    description: Zeigt Statistiken, Rangliste oder verwaltet Daten.
+    usage: /stats [spieler|top|reload|reset <spieler>]
+    permission: serverstats.stats
+  playtime:
+    description: Zeigt die Spielzeit eines Spielers.
+    usage: /playtime [spieler]
+    permission: serverstats.playtime
+
+permissions:
+  serverstats.stats:
+    description: Darf eigene Statistiken ansehen.
+    default: true
+  serverstats.stats.others:
+    description: Darf fremde Statistiken ansehen.
+    default: op
+  serverstats.playtime:
+    description: Darf die Spielzeit ansehen.
+    default: true
+  serverstats.top:
+    description: Darf die Rangliste ansehen.
+    default: true
+  serverstats.admin:
+    description: Darf Config neu laden und Statistiken zuruecksetzen.
+    default: op

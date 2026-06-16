@@ -1,0 +1,13 @@
+# Maven-Build-Output
+target/
+
+# Lokaler Test-Server (Server-Binaries, nicht versionieren)
+testserver/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# OS-Dateien
+.DS_Store
+Thumbs.db

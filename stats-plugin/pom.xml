@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>it.markus</groupId>
+    <artifactId>server-stats</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>ServerStats</name>
+
+    <properties>
+        <!-- Paper 26.x ist fuer Java 25 kompiliert -> hier ebenfalls 25 verlangen. -->
+        <maven.compiler.release>25</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- Paper API: 'provided', weil der Server sie zur Laufzeit selbst mitbringt.
+             Landet also NICHT in deinem JAR. -->
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <!-- Feste Version statt offener Spanne: die offene Spanne wuerde sonst
+                 eine neuere Alpha ziehen, die fuer ein neueres Java als 21 gebaut ist. -->
+            <version>26.1.2.build.70-stable</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- Stabiler Artefaktname: 'server-stats.jar' -->
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>

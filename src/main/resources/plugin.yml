@@ -1,0 +1,11 @@
+name: FirstPlugin
+version: '1.0.0'
+main: it.markus.firstplugin.FirstPlugin
+api-version: '1.21'
+description: Mein erstes Paper-Plugin.
+author: Markus
+
+commands:
+  ping:
+    description: Antwortet mit Pong.
+    usage: /ping

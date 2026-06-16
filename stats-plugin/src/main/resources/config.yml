@@ -1,0 +1,33 @@
+# Konfiguration fuer ServerStats.
+# Die Nachrichten verwenden das MiniMessage-Format (Farben/Tags in spitzen Klammern).
+# Platzhalter:
+#   %player%    -> Spielername
+#   %online%    -> aktuelle Spielerzahl
+#   %joincount% -> wie oft der Spieler insgesamt beigetreten ist
+#   %hours%     -> erreichte Stunden (nur bei milestones.broadcast)
+
+broadcast:
+  # Soll beim Beitreten/Verlassen eine servorweite Nachricht ersetzt werden?
+  join-enabled: true
+  quit-enabled: true
+  join-message: "<green>+</green> <white>%player%</white> <gray>ist dem Server beigetreten (%online% online)</gray>"
+  quit-message: "<red>-</red> <white>%player%</white> <gray>hat den Server verlassen</gray>"
+
+# Private Nachricht nur an den beitretenden Spieler. Leer lassen ("") zum Deaktivieren.
+welcome-private: "<yellow>Willkommen zurueck, <white>%player%</white>! Das ist dein <white>%joincount%.</white> Besuch.</yellow>"
+
+# Eigene Broadcast-Nachricht, wenn ein Spieler zum ALLERERSTEN Mal beitritt.
+first-join:
+  enabled: true
+  broadcast: "<gold>★</gold> <white>%player%</white> <yellow>betritt zum ersten Mal den Server. Willkommen!</yellow>"
+
+# Spielzeit-Meilensteine: werden einmalig angekuendigt, sobald erreicht.
+milestones:
+  enabled: true
+  # Schwellen in Stunden, aufsteigend sortiert.
+  hours: [1, 10, 24, 100, 500]
+  broadcast: "<aqua>%player% hat <white>%hours% Stunden</white> Spielzeit erreicht! \U0001F389</aqua>"
+
+# Wie viele Spieler die Rangliste /stats top anzeigt.
+leaderboard:
+  size: 10
