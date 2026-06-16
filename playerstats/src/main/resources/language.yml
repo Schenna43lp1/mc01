@@ -1,0 +1,44 @@
+# ====================================================================
+#  PlayerStats – Lokalisierung
+#  Leere Stat-Namen => automatische Uebersetzung in die Sprache des
+#  betrachtenden Clients (per Minecraft-Translation-Key).
+#  Eigener Text => ueberschreibt die Uebersetzung fuer ALLE Clients.
+# ====================================================================
+
+stats:
+  playtime: ""
+  deaths: ""
+  mob_kills: ""
+  player_kills: ""
+  damage_dealt: ""
+  damage_taken: ""
+  jumps: ""
+  distance_walked: ""
+  distance_fallen: ""
+  distance_flown: ""
+  distance_climbed: ""
+  animals_bred: ""
+  fish_caught: ""
+  items_enchanted: ""
+  items_dropped: ""
+  raids_won: ""
+
+# UI-Texte des Plugins. Platzhalter: %size% %player% %stat% %days%
+messages:
+  top-title: "Top %size%"
+  server-title: "Server-Gesamt"
+  your-stat: "Deine Statistik"
+  player-stat: "Statistik von %player%"
+  no-permission: "Dazu fehlt dir die Berechtigung."
+  only-players: "Diesen Befehl koennen nur Spieler nutzen."
+  unknown-stat: "Unbekannte Statistik. /playerstats list zeigt alle."
+  player-not-found: "Spieler nicht gefunden oder nie online gewesen."
+  reload-success: "PlayerStats-Konfiguration neu geladen."
+  list-header: "Verfuegbare Statistiken:"
+  excluded-added: "%player% wird jetzt aus den Statistiken ausgeschlossen."
+  excluded-removed: "%player% wird wieder in den Statistiken gefuehrt."
+  excluded-empty: "Es sind keine Spieler ausgeschlossen."
+  excluded-header: "Ausgeschlossene Spieler:"
+  share-empty: "Du hast gerade keine Statistik zum Teilen."
+  share-by: "%player% teilt:"
+  calculating: "Berechne Statistik ..."

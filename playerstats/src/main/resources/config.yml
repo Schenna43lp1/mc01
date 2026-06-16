@@ -1,0 +1,45 @@
+# ====================================================================
+#  PlayerStats – Konfiguration
+#  Alle Werte sind zur Laufzeit per /playerstats reload neu ladbar.
+# ====================================================================
+
+# --- Einheiten ------------------------------------------------------
+# Wie zeit-, distanz- und schaden-basierte Statistiken dargestellt werden.
+units:
+  # ticks | seconds | minutes | hours | days | auto
+  time: auto
+  # cm | blocks | km | auto   (blocks == Meter)
+  distance: blocks
+  # raw | hp | hearts          (Rohwert ist 1/10 HP)
+  damage: hearts
+  # Bei "auto": wie viele Teil-Einheiten zeigen (z. B. 2 -> "1h 5m").
+  auto-detail: 2
+
+# --- Darstellung & Styling -----------------------------------------
+# Farben sind entweder Minecraft-Namen (gold, dark_red, aqua, ...)
+# ODER Hex-Werte (#RRGGBB).
+style:
+  text-color: "gray"
+  number-color: "#55FF55"
+  stat-name-color: "gold"
+  player-name-color: "#FFAA55"
+  title-color: "gold"
+  rank-color: "yellow"
+  # Zusatzformatierung
+  italic: false
+  # Festliche Farbgebung (saisonale Palette) fuer Titel.
+  festive: false
+  # Regenbogen-Modus fuer Titel (ueberschreibt title-color/festive).
+  rainbow: false
+
+# --- Filter & Performance ------------------------------------------
+filters:
+  # Nur Spieler von der Server-Whitelist beruecksichtigen.
+  use-whitelist: false
+  # Gebannte Spieler ausschliessen.
+  exclude-banned: true
+  # Nur Spieler zeigen, die in den letzten X Tagen online waren.
+  # 0 = aus. Steigert Relevanz und Performance bei vielen Spielern.
+  max-last-join-days: 0
+  # Wie viele Spieler die Top-Liste maximal zeigt (Performance).
+  top-list-size: 10

@@ -1,0 +1,31 @@
+name: PlayerStats
+version: '1.0.0'
+main: it.markus.playerstats.PlayerStatsPlugin
+api-version: '1.21'
+description: Zeigt konfigurierbare Spielerstatistiken mit Einheiten, Lokalisierung, Styling und Filtern.
+author: Markus
+
+commands:
+  playerstats:
+    description: Zeigt Spielerstatistiken (eigene, andere, Top-Liste, Server-Gesamt).
+    usage: /playerstats <statistik> [me|top|server|player <name>] | list | reload | share
+    aliases: [pstats, pstat]
+    permission: playerstats.stat
+  statexclude:
+    description: Schliesst Spieler aus Top-/Server-Statistiken aus.
+    usage: /statexclude <add|remove|list> [spieler]
+    permission: playerstats.exclude
+
+permissions:
+  playerstats.stat:
+    description: Darf Statistiken abfragen.
+    default: true
+  playerstats.share:
+    description: Darf Statistiken im Chat teilen.
+    default: true
+  playerstats.reload:
+    description: Darf die Config neu laden.
+    default: op
+  playerstats.exclude:
+    description: Darf Spieler aus Statistiken ausschliessen.
+    default: op
