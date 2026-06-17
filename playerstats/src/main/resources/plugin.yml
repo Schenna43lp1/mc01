@@ -15,6 +15,14 @@ commands:
     description: Schliesst Spieler aus Top-/Server-Statistiken aus.
     usage: /statexclude <add|remove|list> [spieler]
     permission: playerstats.exclude
+  statcompare:
+    description: Vergleicht eine Statistik zweier Spieler.
+    usage: /statcompare <statistik> <spieler> [spieler2]
+    permission: playerstats.stat
+  statreset:
+    description: Setzt CUSTOM-Statistiken eines Spielers zurueck.
+    usage: /statreset <spieler> [statistik|all]
+    permission: playerstats.reset
 
 permissions:
   playerstats.stat:
@@ -28,4 +36,7 @@ permissions:
     default: op
   playerstats.exclude:
     description: Darf Spieler aus Statistiken ausschliessen.
+    default: op
+  playerstats.reset:
+    description: Darf CUSTOM-Statistiken zuruecksetzen.
     default: op

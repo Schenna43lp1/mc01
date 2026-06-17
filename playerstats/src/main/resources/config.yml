@@ -1,10 +1,10 @@
 # ====================================================================
 #  PlayerStats – Konfiguration
 #  Alle Werte sind zur Laufzeit per /playerstats reload neu ladbar.
+#  (Ausnahme: ein Wechsel von storage.type erfordert einen Neustart.)
 # ====================================================================
 
 # --- Einheiten ------------------------------------------------------
-# Wie zeit-, distanz- und schaden-basierte Statistiken dargestellt werden.
 units:
   # ticks | seconds | minutes | hours | days | auto
   time: auto
@@ -12,12 +12,10 @@ units:
   distance: blocks
   # raw | hp | hearts          (Rohwert ist 1/10 HP)
   damage: hearts
-  # Bei "auto": wie viele Teil-Einheiten zeigen (z. B. 2 -> "1h 5m").
   auto-detail: 2
 
 # --- Darstellung & Styling -----------------------------------------
-# Farben sind entweder Minecraft-Namen (gold, dark_red, aqua, ...)
-# ODER Hex-Werte (#RRGGBB).
+# Farben: Minecraft-Namen (gold, dark_red, aqua, ...) ODER Hex (#RRGGBB).
 style:
   text-color: "gray"
   number-color: "#55FF55"
@@ -25,21 +23,132 @@ style:
   player-name-color: "#FFAA55"
   title-color: "gold"
   rank-color: "yellow"
-  # Zusatzformatierung
   italic: false
-  # Festliche Farbgebung (saisonale Palette) fuer Titel.
   festive: false
-  # Regenbogen-Modus fuer Titel (ueberschreibt title-color/festive).
   rainbow: false
+
+# --- Anzeige --------------------------------------------------------
+display:
+  # Klickbaren [Teilen]-Button an Ergebnisse anhaengen.
+  show-share-button: true
+  # Grosse Zahlen abkuerzen (1.234 -> "1,2K", 5.600.000 -> "5,6M").
+  abbreviate-numbers: false
+  # Plaetze 1-3 als Medaillen statt #1/#2/#3 (haengt vom Client-Font ab).
+  show-medals: true
+  # Eintraege pro Seite bei /playerstats <stat> top <seite>.
+  top-page-size: 10
 
 # --- Filter & Performance ------------------------------------------
 filters:
-  # Nur Spieler von der Server-Whitelist beruecksichtigen.
   use-whitelist: false
-  # Gebannte Spieler ausschliessen.
   exclude-banned: true
-  # Nur Spieler zeigen, die in den letzten X Tagen online waren.
-  # 0 = aus. Steigert Relevanz und Performance bei vielen Spielern.
   max-last-join-days: 0
-  # Wie viele Spieler die Top-Liste maximal zeigt (Performance).
   top-list-size: 10
+  # Werte unter diesem Schwellenwert in Top-Listen ausblenden (0 = aus).
+  min-value: 0
+
+# --- Speicherung der CUSTOM-Statistiken ----------------------------
+storage:
+  # yaml | sqlite | mysql
+  type: yaml
+  # Wie oft geaenderte Daten gesammelt geschrieben werden (Sekunden).
+  flush-interval-seconds: 30
+  mysql:
+    host: localhost
+    port: 3306
+    database: playerstats
+    user: root
+    password: ""
+    table-prefix: "ps_"
+
+# --- Event-getrackte CUSTOM-Statistiken ----------------------------
+custom:
+  track-elytra-time: true
+  track-arrow-accuracy: true
+  # Nativ nicht unterstuetzt -> Hitbox-Approximation. Standardmaessig aus.
+  track-headshots: false
+  # Bloecke, die als "selten" zaehlen (/playerstats rare_blocks).
+  rare-blocks:
+    - ANCIENT_DEBRIS
+    - DIAMOND_ORE
+    - DEEPSLATE_DIAMOND_ORE
+    - EMERALD_ORE
+    - DEEPSLATE_EMERALD_ORE
+
+# --- Update-Pruefung ------------------------------------------------
+updater:
+  enabled: true
+  # OPs beim Beitreten ueber neue Versionen informieren.
+  notify-ops: true
+  # Neue Version automatisch nach plugins/update/ laden (Paper installiert
+  # sie beim naechsten Neustart). Standardmaessig AUS – laedt Code aus dem Netz!
+  auto-download: false
+  # github | url
+  source: github
+  # Bei source: github  ->  "Besitzer/Repo" (z. B. markus/PlayerStats)
+  github-repo: ""
+  # Bei source: url  ->  liefert reinen Versions-Text (z. B. "1.2.0")
+  version-url: ""
+  # Bei source: url  ->  direkte JAR-Download-URL (fuer auto-download)
+  download-url: ""
+  # Pruef-Intervall in Stunden (0 = nur beim Start).
+  check-interval-hours: 12
+
+# --- Material-/Statistik-Gruppen -----------------------------------
+# Frei erweiterbar – auch fuer neue Minecraft-Versionen ohne Codeaenderung.
+groups:
+  # Summiert zu "total_distance".
+  distance:
+    - WALK_ONE_CM
+    - SPRINT_ONE_CM
+    - SWIM_ONE_CM
+    - FALL_ONE_CM
+    - CLIMB_ONE_CM
+    - FLY_ONE_CM
+    - HORSE_ONE_CM
+    - BOAT_ONE_CM
+    - AVIATE_ONE_CM
+  # Block-Gruppen fuer abgebaute Bloecke (Statistic.MINE_BLOCK).
+  blocks:
+    diamonds:
+      - DIAMOND_ORE
+      - DEEPSLATE_DIAMOND_ORE
+    ancient_debris:
+      - ANCIENT_DEBRIS
+    logs:
+      - OAK_LOG
+      - SPRUCE_LOG
+      - BIRCH_LOG
+      - JUNGLE_LOG
+      - ACACIA_LOG
+      - DARK_OAK_LOG
+      - MANGROVE_LOG
+      - CHERRY_LOG
+      - CRIMSON_STEM
+      - WARPED_STEM
+    ores:
+      - COAL_ORE
+      - DEEPSLATE_COAL_ORE
+      - IRON_ORE
+      - DEEPSLATE_IRON_ORE
+      - COPPER_ORE
+      - DEEPSLATE_COPPER_ORE
+      - GOLD_ORE
+      - DEEPSLATE_GOLD_ORE
+      - REDSTONE_ORE
+      - DEEPSLATE_REDSTONE_ORE
+      - LAPIS_ORE
+      - DEEPSLATE_LAPIS_ORE
+      - DIAMOND_ORE
+      - DEEPSLATE_DIAMOND_ORE
+      - EMERALD_ORE
+      - DEEPSLATE_EMERALD_ORE
+      - NETHER_GOLD_ORE
+      - NETHER_QUARTZ_ORE
+  # Crops fuer "plants_harvested" (nur im reifen Zustand gezaehlt).
+  crops:
+    - WHEAT
+    - CARROTS
+    - POTATOES
+    - BEETROOTS
+    - NETHER_WART

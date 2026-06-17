@@ -1,9 +1,9 @@
 package it.markus.playerstats.stat;
 
+import it.markus.playerstats.PlayerStatsPlugin;
 import it.markus.playerstats.filter.PlayerFilter;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -14,58 +14,62 @@ import java.util.function.Consumer;
  * Fragt Statistiken ab. Das (potenziell teure) Einlesen vieler Offline-Spieler
  * laeuft asynchron; das Ergebnis wird garantiert wieder auf dem Hauptthread
  * geliefert, sodass die Aufrufer gefahrlos Nachrichten senden koennen.
+ *
+ * Die Werte kommen ausschliesslich aus den {@link StatResolver}n der jeweiligen
+ * {@link StatDefinition} – die Trennung VANILLA/GRUPPE/CUSTOM/COMPUTED ist hier
+ * also transparent.
  */
 public final class StatService {
 
-    private final JavaPlugin plugin;
+    private final PlayerStatsPlugin plugin;
     private final PlayerFilter filter;
 
-    public StatService(JavaPlugin plugin, PlayerFilter filter) {
+    public StatService(PlayerStatsPlugin plugin, PlayerFilter filter) {
         this.plugin = plugin;
         this.filter = filter;
     }
 
-    /** Top-Liste nach Wert (absteigend), bereits auf {@code limit} gekuerzt. */
-    public void top(StatType type, int limit, Consumer<List<StatResult>> onMain) {
+    /**
+     * Vollstaendige, absteigend sortierte Rangliste (gefiltert nach min-value).
+     * Die Paginierung uebernimmt der Aufrufer.
+     */
+    public void topList(StatDefinition def, Consumer<List<StatResult>> onMain) {
         List<OfflinePlayer> players = filter.eligiblePlayers(); // Hauptthread
+        long minValue = plugin.config().minValue();
         runAsync(() -> {
             List<StatResult> results = new ArrayList<>();
             for (OfflinePlayer p : players) {
-                long v = read(p, type);
-                if (v > 0) {
+                double v = resolve(def, p);
+                if (v > 0 && v >= minValue) {
                     results.add(new StatResult(p.getName(), v));
                 }
             }
-            results.sort(Comparator.comparingLong(StatResult::value).reversed());
-            List<StatResult> trimmed = results.size() > limit
-                    ? new ArrayList<>(results.subList(0, limit))
-                    : results;
-            deliver(onMain, trimmed);
+            results.sort(Comparator.comparingDouble(StatResult::value).reversed());
+            deliver(onMain, results);
         });
     }
 
-    /** Summe ueber alle berechtigten Spieler. */
-    public void serverTotal(StatType type, Consumer<Long> onMain) {
+    public void serverTotal(StatDefinition def, Consumer<Double> onMain) {
         List<OfflinePlayer> players = filter.eligiblePlayers();
         runAsync(() -> {
-            long sum = 0;
+            double sum = 0;
             for (OfflinePlayer p : players) {
-                sum += read(p, type);
+                sum += resolve(def, p);
             }
             deliver(onMain, sum);
         });
     }
 
-    /** Einzelwert eines bestimmten Spielers. */
-    public void single(OfflinePlayer player, StatType type, Consumer<Long> onMain) {
-        runAsync(() -> deliver(onMain, read(player, type)));
+    public void single(OfflinePlayer player, StatDefinition def, Consumer<Double> onMain) {
+        runAsync(() -> deliver(onMain, resolve(def, player)));
     }
 
-    private long read(OfflinePlayer player, StatType type) {
+    private double resolve(StatDefinition def, OfflinePlayer player) {
+        StatContext ctx = new StatContext(player, plugin.config(), plugin.custom(), plugin.groups());
         try {
-            return player.getStatistic(type.statistic());
+            return def.resolver().resolve(ctx);
         } catch (RuntimeException ex) {
-            return 0L;
+            return 0.0;
         }
     }
 

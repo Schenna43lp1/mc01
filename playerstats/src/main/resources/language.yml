@@ -3,9 +3,14 @@
 #  Leere Stat-Namen => automatische Uebersetzung in die Sprache des
 #  betrachtenden Clients (per Minecraft-Translation-Key).
 #  Eigener Text => ueberschreibt die Uebersetzung fuer ALLE Clients.
+#
+#  Die Vanilla-Statistiken bleiben leer (Client-Uebersetzung). Gruppen,
+#  Custom- und berechnete Statistiken haben deutsche Standardnamen, da es
+#  dafuer keinen Minecraft-Key gibt.
 # ====================================================================
 
 stats:
+  # --- Vanilla (leer = clientseitig uebersetzt) ---
   playtime: ""
   deaths: ""
   mob_kills: ""
@@ -13,15 +18,48 @@ stats:
   damage_dealt: ""
   damage_taken: ""
   jumps: ""
-  distance_walked: ""
-  distance_fallen: ""
-  distance_flown: ""
-  distance_climbed: ""
-  animals_bred: ""
   fish_caught: ""
+  animals_bred: ""
   items_enchanted: ""
-  items_dropped: ""
   raids_won: ""
+  time_since_death: ""
+  walked: ""
+  sprinted: ""
+  horse_distance: ""
+  boat_distance: ""
+  aviate_distance: ""
+  swim_distance: ""
+  # --- Mob-Kills nach Typ ---
+  zombies_killed: "Zombie-Kills"
+  skeletons_killed: "Skelett-Kills"
+  creepers_killed: "Creeper-Kills"
+  # --- Gruppen ---
+  total_distance: "Gesamtdistanz"
+  total_blocks: "Abgebaute Bloecke"
+  wood: "Holz abgebaut"
+  ores: "Erze abgebaut"
+  diamonds: "Diamanten abgebaut"
+  ancient_debris: "Ancient Debris"
+  # --- Zeitpunkte ---
+  first_join: "Erster Beitritt"
+  last_login: "Zuletzt online"
+  # --- Custom ---
+  login_streak: "Login-Streak"
+  login_streak_longest: "Laengster Login-Streak"
+  killstreak: "Killstreak"
+  killstreak_longest: "Laengste Killserie"
+  elytra_time: "Elytra-Flugzeit"
+  rare_blocks: "Seltene Bloecke"
+  plants_harvested: "Pflanzen geerntet"
+  honey_collected: "Honig gesammelt"
+  berries_collected: "Beeren gesammelt"
+  session_record: "Bloecke-Rekord (Session)"
+  headshots: "Headshots"
+  arrows_shot: "Pfeile abgeschossen"
+  arrows_hit: "Pfeile getroffen"
+  # --- Berechnet ---
+  kd_ratio: "K/D-Verhaeltnis"
+  arrow_accuracy: "Trefferquote"
 
 # UI-Texte des Plugins. Platzhalter: %size% %player% %stat% %days%
 messages:
@@ -42,3 +80,11 @@ messages:
   share-empty: "Du hast gerade keine Statistik zum Teilen."
   share-by: "%player% teilt:"
   calculating: "Berechne Statistik ..."
+  reset-all: "Alle CUSTOM-Statistiken von %player% zurueckgesetzt."
+  reset-stat: "%stat% von %player% zurueckgesetzt."
+  not-resettable: "Nur CUSTOM-Statistiken lassen sich zuruecksetzen."
+  compare-title: "Vergleich"
+  compare-diff: "Differenz"
+  compare-tie: "Gleichstand"
+  compare-leads: "%player% fuehrt"
+  update-available: "[PlayerStats] Update verfuegbar: Version %version%."

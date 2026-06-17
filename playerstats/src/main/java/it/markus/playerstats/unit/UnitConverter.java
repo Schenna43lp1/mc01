@@ -3,6 +3,9 @@ package it.markus.playerstats.unit;
 import it.markus.playerstats.config.PluginConfig;
 import it.markus.playerstats.stat.StatCategory;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -14,21 +17,45 @@ import java.util.Locale;
 public final class UnitConverter {
 
     private static final long TICKS_PER_SECOND = 20L;
+    private static final DateTimeFormatter DATE =
+            DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withZone(ZoneId.systemDefault());
 
     private UnitConverter() {
     }
 
-    public static String format(StatCategory category, long raw, PluginConfig cfg) {
+    public static String format(StatCategory category, double raw, PluginConfig cfg) {
         return switch (category) {
-            case TIME -> time(raw, cfg);
-            case DISTANCE -> distance(raw, cfg);
-            case DAMAGE -> damage(raw, cfg);
-            case GENERIC -> number(raw);
+            case TIME -> time((long) raw, cfg);
+            case DISTANCE -> distance((long) raw, cfg);
+            case DAMAGE -> damage((long) raw, cfg);
+            case DATE -> date((long) raw);
+            case RATIO -> String.format(Locale.GERMAN, "%.2f", raw);
+            case PERCENT -> String.format(Locale.GERMAN, "%.1f %%", raw);
+            case GENERIC -> cfg.abbreviateNumbers() ? abbreviate(Math.round(raw)) : number(Math.round(raw));
         };
     }
 
     private static String number(long value) {
         return String.format(Locale.GERMAN, "%,d", value);
+    }
+
+    /** Kuerzt grosse Zahlen ab: 1.234 -> "1,2K", 5.600.000 -> "5,6M". */
+    private static String abbreviate(long value) {
+        if (Math.abs(value) < 1000) {
+            return number(value);
+        }
+        String[] suffixes = {"K", "M", "Mrd", "Bio"};
+        double d = value;
+        int i = -1;
+        while (Math.abs(d) >= 1000 && i < suffixes.length - 1) {
+            d /= 1000.0;
+            i++;
+        }
+        return String.format(Locale.GERMAN, "%.1f%s", d, suffixes[i]);
+    }
+
+    private static String date(long epochMs) {
+        return epochMs <= 0 ? "—" : DATE.format(Instant.ofEpochMilli(epochMs));
     }
 
     // --- Zeit (Rohwert in Ticks) ------------------------------------------

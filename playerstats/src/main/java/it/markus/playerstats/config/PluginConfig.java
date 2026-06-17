@@ -34,6 +34,34 @@ public final class PluginConfig {
     private final boolean excludeBanned;
     private final int maxLastJoinDays;
     private final int topListSize;
+    private final long minValue;
+
+    private final boolean showShareButton;
+    private final boolean abbreviateNumbers;
+    private final boolean showMedals;
+    private final int topPageSize;
+
+    private final String storageType;
+    private final int flushIntervalSeconds;
+    private final String tablePrefix;
+    private final String mysqlHost;
+    private final int mysqlPort;
+    private final String mysqlDatabase;
+    private final String mysqlUser;
+    private final String mysqlPassword;
+
+    private final boolean trackElytraTime;
+    private final boolean trackArrowAccuracy;
+    private final boolean trackHeadshots;
+
+    private final boolean updaterEnabled;
+    private final boolean updaterNotifyOps;
+    private final boolean updaterAutoDownload;
+    private final String updaterSource;
+    private final String updaterGithubRepo;
+    private final String updaterVersionUrl;
+    private final String updaterDownloadUrl;
+    private final int updaterCheckIntervalHours;
 
     public PluginConfig(FileConfiguration c, Logger log) {
         this.timeUnit = Units.time(c.getString("units.time"), Units.Time.AUTO);
@@ -55,6 +83,34 @@ public final class PluginConfig {
         this.excludeBanned = c.getBoolean("filters.exclude-banned", true);
         this.maxLastJoinDays = Math.max(0, c.getInt("filters.max-last-join-days", 0));
         this.topListSize = Math.max(1, c.getInt("filters.top-list-size", 10));
+        this.minValue = Math.max(0L, c.getLong("filters.min-value", 0L));
+
+        this.showShareButton = c.getBoolean("display.show-share-button", true);
+        this.abbreviateNumbers = c.getBoolean("display.abbreviate-numbers", false);
+        this.showMedals = c.getBoolean("display.show-medals", true);
+        this.topPageSize = Math.max(1, c.getInt("display.top-page-size", 10));
+
+        this.storageType = c.getString("storage.type", "yaml");
+        this.flushIntervalSeconds = Math.max(5, c.getInt("storage.flush-interval-seconds", 30));
+        this.tablePrefix = c.getString("storage.mysql.table-prefix", "ps_");
+        this.mysqlHost = c.getString("storage.mysql.host", "localhost");
+        this.mysqlPort = c.getInt("storage.mysql.port", 3306);
+        this.mysqlDatabase = c.getString("storage.mysql.database", "playerstats");
+        this.mysqlUser = c.getString("storage.mysql.user", "root");
+        this.mysqlPassword = c.getString("storage.mysql.password", "");
+
+        this.trackElytraTime = c.getBoolean("custom.track-elytra-time", true);
+        this.trackArrowAccuracy = c.getBoolean("custom.track-arrow-accuracy", true);
+        this.trackHeadshots = c.getBoolean("custom.track-headshots", false);
+
+        this.updaterEnabled = c.getBoolean("updater.enabled", true);
+        this.updaterNotifyOps = c.getBoolean("updater.notify-ops", true);
+        this.updaterAutoDownload = c.getBoolean("updater.auto-download", false);
+        this.updaterSource = c.getString("updater.source", "github");
+        this.updaterGithubRepo = c.getString("updater.github-repo", "");
+        this.updaterVersionUrl = c.getString("updater.version-url", "");
+        this.updaterDownloadUrl = c.getString("updater.download-url", "");
+        this.updaterCheckIntervalHours = Math.max(0, c.getInt("updater.check-interval-hours", 12));
     }
 
     public Units.Time timeUnit() {
@@ -123,5 +179,101 @@ public final class PluginConfig {
 
     public int topListSize() {
         return topListSize;
+    }
+
+    public long minValue() {
+        return minValue;
+    }
+
+    public boolean showShareButton() {
+        return showShareButton;
+    }
+
+    public boolean abbreviateNumbers() {
+        return abbreviateNumbers;
+    }
+
+    public boolean showMedals() {
+        return showMedals;
+    }
+
+    public int topPageSize() {
+        return topPageSize;
+    }
+
+    public String storageType() {
+        return storageType;
+    }
+
+    public int flushIntervalSeconds() {
+        return flushIntervalSeconds;
+    }
+
+    public String tablePrefix() {
+        return tablePrefix;
+    }
+
+    public String mysqlHost() {
+        return mysqlHost;
+    }
+
+    public int mysqlPort() {
+        return mysqlPort;
+    }
+
+    public String mysqlDatabase() {
+        return mysqlDatabase;
+    }
+
+    public String mysqlUser() {
+        return mysqlUser;
+    }
+
+    public String mysqlPassword() {
+        return mysqlPassword;
+    }
+
+    public boolean trackElytraTime() {
+        return trackElytraTime;
+    }
+
+    public boolean trackArrowAccuracy() {
+        return trackArrowAccuracy;
+    }
+
+    public boolean trackHeadshots() {
+        return trackHeadshots;
+    }
+
+    public boolean updaterEnabled() {
+        return updaterEnabled;
+    }
+
+    public boolean updaterNotifyOps() {
+        return updaterNotifyOps;
+    }
+
+    public boolean updaterAutoDownload() {
+        return updaterAutoDownload;
+    }
+
+    public String updaterSource() {
+        return updaterSource;
+    }
+
+    public String updaterGithubRepo() {
+        return updaterGithubRepo;
+    }
+
+    public String updaterVersionUrl() {
+        return updaterVersionUrl;
+    }
+
+    public String updaterDownloadUrl() {
+        return updaterDownloadUrl;
+    }
+
+    public int updaterCheckIntervalHours() {
+        return updaterCheckIntervalHours;
     }
 }

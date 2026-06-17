@@ -1,6 +1,6 @@
 package it.markus.playerstats.lang;
 
-import it.markus.playerstats.stat.StatType;
+import it.markus.playerstats.stat.StatDefinition;
 import net.kyori.adventure.text.Component;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -12,9 +12,10 @@ import java.io.File;
  * Verwaltet language.yml: anpassbare Statistik-Namen und die UI-Texte.
  *
  * Statistik-Namen:
- *   - Eintrag leer  -> {@link Component#translatable} mit dem Minecraft-Key,
- *     d. h. der CLIENT uebersetzt den Namen in seine eigene Sprache.
  *   - Eintrag gesetzt -> fester Text fuer alle Clients.
+ *   - sonst, falls ein Translation-Key existiert -> {@link Component#translatable},
+ *     d. h. der CLIENT uebersetzt den Namen in seine eigene Sprache.
+ *   - sonst -> die id als Fallback.
  */
 public final class LanguageManager {
 
@@ -36,20 +37,21 @@ public final class LanguageManager {
     }
 
     /** Der (unkolorierte) Anzeigename einer Statistik. */
-    public Component statName(StatType type) {
-        String override = lang.getString("stats." + type.id(), "");
-        if (override == null || override.isBlank()) {
-            return Component.translatable(type.translationKey());
+    public Component statName(StatDefinition def) {
+        String override = lang.getString("stats." + def.id(), "");
+        if (override != null && !override.isBlank()) {
+            return Component.text(override);
         }
-        return Component.text(override);
+        if (def.translationKey() != null) {
+            return Component.translatable(def.translationKey());
+        }
+        return Component.text(def.id());
     }
 
-    /** Ein UI-Text aus dem messages-Abschnitt. */
     public String message(String key) {
         return lang.getString("messages." + key, key);
     }
 
-    /** Ein UI-Text mit Platzhaltern (paarweise: "%player%", name, ...). */
     public String message(String key, String... placeholderPairs) {
         String text = message(key);
         for (int i = 0; i + 1 < placeholderPairs.length; i += 2) {

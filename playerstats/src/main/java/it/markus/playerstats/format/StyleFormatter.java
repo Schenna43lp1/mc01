@@ -42,6 +42,17 @@ public final class StyleFormatter {
         return italic(Component.text("#" + rank, cfg.rankColor()));
     }
 
+    /** Medaille fuer die Plaetze 1–3, sonst normaler Rang. */
+    public Component medal(int rank) {
+        String emoji = switch (rank) {
+            case 1 -> "🥇"; // 🥇
+            case 2 -> "🥈"; // 🥈
+            case 3 -> "🥉"; // 🥉
+            default -> null;
+        };
+        return emoji == null ? rank(rank) : italic(Component.text(emoji));
+    }
+
     /** Faerbt einen (ggf. uebersetzbaren) Statistik-Namen ein. */
     public Component statName(Component rawName) {
         Component c = rawName.color(cfg.statNameColor());
