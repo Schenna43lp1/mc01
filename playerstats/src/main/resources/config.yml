@@ -86,7 +86,7 @@ updater:
   # github | url
   source: github
   # Bei source: github  ->  "Besitzer/Repo" (z. B. markus/PlayerStats)
-  github-repo: ""
+  github-repo: "Schenna43lp1/mc01"
   # Bei source: url  ->  liefert reinen Versions-Text (z. B. "1.2.0")
   version-url: ""
   # Bei source: url  ->  direkte JAR-Download-URL (fuer auto-download)
