@@ -7,6 +7,8 @@ import it.markus.playerstats.command.StatResetCommand;
 import it.markus.playerstats.config.PluginConfig;
 import it.markus.playerstats.custom.CustomKeys;
 import it.markus.playerstats.custom.CustomStatService;
+import it.markus.playerstats.discord.DiscordListener;
+import it.markus.playerstats.discord.DiscordNotifier;
 import it.markus.playerstats.exclude.ExcludeManager;
 import it.markus.playerstats.filter.PlayerFilter;
 import it.markus.playerstats.format.StyleFormatter;
@@ -50,6 +52,7 @@ public final class PlayerStatsPlugin extends JavaPlugin {
     private PlayerFilter filter;
     private StatService service;
     private UpdateChecker updater;
+    private DiscordNotifier discord;
 
     @Override
     public void onEnable() {
@@ -71,22 +74,28 @@ public final class PlayerStatsPlugin extends JavaPlugin {
         bind("statcompare", new StatCompareCommand(this));
 
         this.updater = new UpdateChecker(this);
+        this.discord = new DiscordNotifier(this);
 
         getServer().getPluginManager().registerEvents(new CombatListener(this), this);
         getServer().getPluginManager().registerEvents(new MiningListener(this), this);
         getServer().getPluginManager().registerEvents(new GatheringListener(this), this);
         getServer().getPluginManager().registerEvents(new SessionListener(this), this);
         getServer().getPluginManager().registerEvents(new UpdateNotifyListener(this), this);
+        getServer().getPluginManager().registerEvents(new DiscordListener(this), this);
 
         scheduleFlush();
         scheduleElytraTracking();
         scheduleUpdateCheck();
 
+        discord.serverOnline();
         getLogger().info("PlayerStats aktiviert (" + registry.ids().size() + " Statistiken).");
     }
 
     @Override
     public void onDisable() {
+        if (discord != null) {
+            discord.serverOffline(); // blockierend, da Scheduler nicht mehr nutzbar
+        }
         if (custom != null) {
             custom.shutdown();
         }
@@ -201,5 +210,9 @@ public final class PlayerStatsPlugin extends JavaPlugin {
 
     public UpdateChecker updater() {
         return updater;
+    }
+
+    public DiscordNotifier discord() {
+        return discord;
     }
 }

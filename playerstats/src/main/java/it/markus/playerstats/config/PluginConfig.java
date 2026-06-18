@@ -3,8 +3,11 @@ package it.markus.playerstats.config;
 import it.markus.playerstats.unit.Units;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -63,6 +66,14 @@ public final class PluginConfig {
     private final String updaterDownloadUrl;
     private final int updaterCheckIntervalHours;
 
+    private final boolean discordEnabled;
+    private final String discordWebhookUrl;
+    private final String discordUsername;
+    private final String discordAvatarUrl;
+    private final boolean discordUseEmbeds;
+    private final Map<String, Boolean> discordEvents;
+    private final Map<String, String> discordMessages;
+
     public PluginConfig(FileConfiguration c, Logger log) {
         this.timeUnit = Units.time(c.getString("units.time"), Units.Time.AUTO);
         this.distanceUnit = Units.distance(c.getString("units.distance"), Units.Distance.BLOCKS);
@@ -111,6 +122,34 @@ public final class PluginConfig {
         this.updaterVersionUrl = c.getString("updater.version-url", "");
         this.updaterDownloadUrl = c.getString("updater.download-url", "");
         this.updaterCheckIntervalHours = Math.max(0, c.getInt("updater.check-interval-hours", 12));
+
+        this.discordEnabled = c.getBoolean("discord.enabled", false);
+        this.discordWebhookUrl = c.getString("discord.webhook-url", "");
+        this.discordUsername = c.getString("discord.username", "PlayerStats");
+        this.discordAvatarUrl = c.getString("discord.avatar-url", "");
+        this.discordUseEmbeds = c.getBoolean("discord.use-embeds", true);
+        this.discordEvents = boolMap(c.getConfigurationSection("discord.events"));
+        this.discordMessages = stringMap(c.getConfigurationSection("discord.messages"));
+    }
+
+    private static Map<String, Boolean> boolMap(ConfigurationSection section) {
+        Map<String, Boolean> map = new HashMap<>();
+        if (section != null) {
+            for (String key : section.getKeys(false)) {
+                map.put(key, section.getBoolean(key));
+            }
+        }
+        return map;
+    }
+
+    private static Map<String, String> stringMap(ConfigurationSection section) {
+        Map<String, String> map = new HashMap<>();
+        if (section != null) {
+            for (String key : section.getKeys(false)) {
+                map.put(key, section.getString(key, ""));
+            }
+        }
+        return map;
     }
 
     public Units.Time timeUnit() {
@@ -275,5 +314,35 @@ public final class PluginConfig {
 
     public int updaterCheckIntervalHours() {
         return updaterCheckIntervalHours;
+    }
+
+    public boolean discordEnabled() {
+        return discordEnabled;
+    }
+
+    public String discordWebhookUrl() {
+        return discordWebhookUrl;
+    }
+
+    public String discordUsername() {
+        return discordUsername;
+    }
+
+    public String discordAvatarUrl() {
+        return discordAvatarUrl;
+    }
+
+    public boolean discordUseEmbeds() {
+        return discordUseEmbeds;
+    }
+
+    /** Ist ein bestimmtes Discord-Ereignis aktiviert? (Default: aus) */
+    public boolean discordEvent(String key) {
+        return discordEvents.getOrDefault(key, false);
+    }
+
+    /** Nachrichtenvorlage fuer ein Discord-Ereignis (Fallback: der Schluessel). */
+    public String discordMessage(String key) {
+        return discordMessages.getOrDefault(key, key);
     }
 }

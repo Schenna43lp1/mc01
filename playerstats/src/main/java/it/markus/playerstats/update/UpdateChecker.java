@@ -81,6 +81,8 @@ public final class UpdateChecker {
             plugin.getLogger().info("Update verfuegbar: " + current + " -> " + release.version()
                     + (release.downloadUrl() != null ? " (" + release.downloadUrl() + ")" : ""));
 
+            plugin.discord().updateAvailable(release.version());
+
             if (plugin.config().updaterAutoDownload()) {
                 download(release.downloadUrl());
             }

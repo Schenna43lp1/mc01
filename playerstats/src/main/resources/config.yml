@@ -82,17 +82,40 @@ updater:
   notify-ops: true
   # Neue Version automatisch nach plugins/update/ laden (Paper installiert
   # sie beim naechsten Neustart). Standardmaessig AUS – laedt Code aus dem Netz!
-  auto-download: false
+  auto-download: true
   # github | url
   source: github
-  # Bei source: github  ->  "Besitzer/Repo" (z. B. markus/PlayerStats)
+  # Bei source: github  ->  "Besitzer/Repo" 
   github-repo: "Schenna43lp1/mc01"
-  # Bei source: url  ->  liefert reinen Versions-Text (z. B. "1.2.0")
-  version-url: ""
-  # Bei source: url  ->  direkte JAR-Download-URL (fuer auto-download)
+
   download-url: ""
-  # Pruef-Intervall in Stunden (0 = nur beim Start).
-  check-interval-hours: 12
+  check-interval-hours: 1
+
+# --- Discord-Status-Webhook ----------------------------------------
+discord:
+  enabled: false
+  # ACHTUNG: Webhook-URL ist ein GEHEIMNIS. Niemals in ein oeffentliches
+  # Repo committen! Nur lokal eintragen.
+  webhook-url: ""
+  username: "PlayerStats"
+  avatar-url: ""
+  # true = huebsche Embeds (farbig), false = einfacher Text.
+  use-embeds: true
+  # Welche Ereignisse gemeldet werden. Hinweis: Discord-Webhooks sind auf
+  # ~30 Anfragen/Minute limitiert – bei vollen Servern join/quit ggf. aus.
+  events:
+    server-online: true
+    server-offline: true
+    player-join: true
+    player-quit: true
+    update-available: true
+  # Platzhalter: %player% %online% %version%
+  messages:
+    server-online: "🟢 Server ist online"
+    server-offline: "🔴 Server ist offline"
+    player-join: "➕ %player% ist beigetreten (%online% online)"
+    player-quit: "➖ %player% hat den Server verlassen"
+    update-available: "⬆️ Update verfuegbar: Version %version%"
 
 # --- Material-/Statistik-Gruppen -----------------------------------
 # Frei erweiterbar – auch fuer neue Minecraft-Versionen ohne Codeaenderung.
