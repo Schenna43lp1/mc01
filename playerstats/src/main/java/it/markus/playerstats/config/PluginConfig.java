@@ -64,6 +64,7 @@ public final class PluginConfig {
     private final boolean updaterEnabled;
     private final boolean updaterNotifyOps;
     private final boolean updaterAutoDownload;
+    private final boolean updaterRequireChecksum;
     private final String updaterSource;
     private final String updaterChannel;
     private final String updaterGithubRepo;
@@ -126,6 +127,7 @@ public final class PluginConfig {
         this.updaterEnabled = c.getBoolean("updater.enabled", true);
         this.updaterNotifyOps = c.getBoolean("updater.notify-ops", true);
         this.updaterAutoDownload = c.getBoolean("updater.auto-download", false);
+        this.updaterRequireChecksum = c.getBoolean("updater.require-checksum", false);
         this.updaterSource = c.getString("updater.source", "github");
         this.updaterChannel = c.getString("updater.channel", "stable");
         this.updaterGithubRepo = c.getString("updater.github-repo", "");
@@ -316,6 +318,10 @@ public final class PluginConfig {
 
     public boolean updaterAutoDownload() {
         return updaterAutoDownload;
+    }
+
+    public boolean updaterRequireChecksum() {
+        return updaterRequireChecksum;
     }
 
     public String updaterSource() {

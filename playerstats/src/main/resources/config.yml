@@ -93,8 +93,12 @@ updater:
   # OPs beim Beitreten ueber neue Versionen informieren.
   notify-ops: true
   # Neue Version automatisch nach plugins/update/ laden (Paper installiert
-  # sie beim naechsten Neustart). Standardmaessig AUS – laedt Code aus dem Netz!
-  auto-download: true
+  # sie beim naechsten Neustart). Standard AUS (nur benachrichtigen) – Auto-Install
+  # laedt fremden Code aus dem Netz und ist daher bewusst Opt-in.
+  auto-download: false
+  # Beim Auto-Download eine .sha256-Asset-Checksumme verlangen. true = ohne
+  # Checksumme wird der Download verworfen; false = ungeprueft (mit Warnung).
+  require-checksum: false
   # github | url
   source: github
   # Release-Kanal: stable (nur stabile Releases) | prerelease (auch Beta/Pre-Releases)
