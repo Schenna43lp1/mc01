@@ -9,7 +9,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import or
 
 /**
  * Einstiegspunkt des Plugins.
@@ -44,7 +43,7 @@ public final class FirstPlugin extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         event.getPlayer().sendMessage(
-                Component.text("Willkommen auf dem Server!", NamedTextColor.GREEN
+                Component.text("Willkommen auf dem Server!", NamedTextColor.GREEN)
         );
     }
 

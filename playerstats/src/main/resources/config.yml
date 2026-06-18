@@ -2,6 +2,11 @@
 #  PlayerStats – Konfiguration
 #  Alle Werte sind zur Laufzeit per /playerstats reload neu ladbar.
 #  (Ausnahme: ein Wechsel von storage.type erfordert einen Neustart.)
+# Developer: Schenna43lp
+# GitHub: github.com/Schenna43lp1/mc01
+# support: https://discord.gg/KDktpqRNPj
+# if you want to support the development of this plugin, please consider donating: https://github.com/sponsors/Schenna43lp1/
+# IMPORTANT: Diese Datei ist YAML. Achten Sie auf korrekte Einrückungen (2 Leerzeichen pro Ebene) und keine Tabs.
 # ====================================================================
 
 # --- Einheiten ------------------------------------------------------

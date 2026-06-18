@@ -32,7 +32,9 @@ public final class UpdateNotifyListener implements Listener {
         }
 
         Component message = plugin.style().text(
-                plugin.language().message("update-available", "%version%", plugin.updater().latestVersion()));
+                plugin.language().message("update-available", "%version%",
+                        " Support the development: https://github.com/sponsors/Schenna43lp1/",
+                        plugin.updater().latestVersion()));
 
         String url = plugin.updater().downloadUrl();
         if (url != null) {

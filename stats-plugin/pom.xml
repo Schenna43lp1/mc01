@@ -6,7 +6,7 @@
 
     <groupId>it.markus</groupId>
     <artifactId>server-stats</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
 
     <name>ServerStats</name>

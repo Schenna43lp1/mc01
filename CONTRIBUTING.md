@@ -1,1 +1,3 @@
-in progresss
+# CONTRIBUTING
+
+Dieses Dokument ist in Arbeit.
