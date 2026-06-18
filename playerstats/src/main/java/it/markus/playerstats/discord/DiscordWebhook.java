@@ -22,14 +22,21 @@ import java.time.Duration;
  */
 public final class DiscordWebhook {
 
+    private static final long ERROR_LOG_COOLDOWN_MS = 60_000L;
+    private static final long DEFAULT_BACKOFF_MS = 5_000L;
+
     private final PlayerStatsPlugin plugin;
+
+    // Rate-Limit-Backoff (bei 429) und gedrosseltes Fehler-Logging.
+    private volatile long blockedUntil;
+    private volatile long lastErrorLog;
 
     public DiscordWebhook(PlayerStatsPlugin plugin) {
         this.plugin = plugin;
     }
 
     public void send(String title, String description, int color) {
-        if (!enabled()) {
+        if (!enabled() || isBlocked()) {
             return;
         }
         String payload = buildPayload(title, description, color);
@@ -38,10 +45,14 @@ public final class DiscordWebhook {
 
     /** Blockierende Variante fuer onDisable (kurzer Timeout). */
     public void sendBlocking(String title, String description, int color) {
-        if (!enabled()) {
+        if (!enabled() || isBlocked()) {
             return;
         }
         post(buildPayload(title, description, color));
+    }
+
+    private boolean isBlocked() {
+        return System.currentTimeMillis() < blockedUntil;
     }
 
     private boolean enabled() {
@@ -90,11 +101,36 @@ public final class DiscordWebhook {
                     .POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() / 100 != 2) {
-                plugin.getLogger().warning("Discord-Webhook antwortete mit HTTP " + response.statusCode());
+            int code = response.statusCode();
+            if (code == 429) {
+                long retryMs = response.headers().firstValue("Retry-After")
+                        .map(DiscordWebhook::parseRetryAfter)
+                        .orElse(DEFAULT_BACKOFF_MS);
+                blockedUntil = System.currentTimeMillis() + retryMs;
+                logThrottled("Discord-Webhook rate-limited (429) – pausiere " + (retryMs / 1000) + "s.");
+            } else if (code / 100 != 2) {
+                logThrottled("Discord-Webhook antwortete mit HTTP " + code);
             }
         } catch (Exception ex) {
-            plugin.getLogger().warning("Discord-Webhook fehlgeschlagen: " + ex.getMessage());
+            // Bewusst ohne URL/Payload, um keine Geheimnisse zu loggen.
+            logThrottled("Discord-Webhook fehlgeschlagen: " + ex.getMessage());
+        }
+    }
+
+    private static long parseRetryAfter(String value) {
+        try {
+            return (long) (Double.parseDouble(value.trim()) * 1000.0);
+        } catch (NumberFormatException ex) {
+            return DEFAULT_BACKOFF_MS;
+        }
+    }
+
+    /** Loggt hoechstens einmal pro Cooldown, damit Fehler nicht spammen. */
+    private void logThrottled(String message) {
+        long now = System.currentTimeMillis();
+        if (now - lastErrorLog >= ERROR_LOG_COOLDOWN_MS) {
+            lastErrorLog = now;
+            plugin.getLogger().warning(message);
         }
     }
 
