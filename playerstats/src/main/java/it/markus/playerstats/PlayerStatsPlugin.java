@@ -15,6 +15,8 @@ import it.markus.playerstats.listener.CombatListener;
 import it.markus.playerstats.listener.GatheringListener;
 import it.markus.playerstats.listener.MiningListener;
 import it.markus.playerstats.listener.SessionListener;
+import it.markus.playerstats.listener.StatIndexListener;
+import it.markus.playerstats.stat.StatIndex;
 import it.markus.playerstats.stat.StatRegistry;
 import it.markus.playerstats.stat.StatService;
 import it.markus.playerstats.storage.StorageFactory;
@@ -47,6 +49,7 @@ public final class PlayerStatsPlugin extends JavaPlugin {
     private StatRegistry registry;
     private CustomStatService custom;
     private PlayerFilter filter;
+    private StatIndex index;
     private StatService service;
     private UpdateChecker updater;
     private DiscordNotifier discord;
@@ -63,7 +66,8 @@ public final class PlayerStatsPlugin extends JavaPlugin {
         this.registry = new StatRegistry();
         this.custom = initCustom();
         this.filter = new PlayerFilter(this::config, excludes);
-        this.service = new StatService(this, filter);
+        this.index = new StatIndex(this, filter);
+        this.service = new StatService(this);
 
         bind("playerstats", new StatCommand(this));
 
@@ -76,10 +80,13 @@ public final class PlayerStatsPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new SessionListener(this), this);
         getServer().getPluginManager().registerEvents(new UpdateNotifyListener(this), this);
         getServer().getPluginManager().registerEvents(new DiscordListener(this), this);
+        getServer().getPluginManager().registerEvents(new StatIndexListener(this), this);
 
         scheduleFlush();
         scheduleElytraTracking();
         scheduleUpdateCheck();
+        scheduleIndexRefresh();
+        index.startWarmUp();
 
         discord.serverOnline();
         getLogger().info("PlayerStats aktiviert (" + registry.ids().size() + " Statistiken).");
@@ -153,6 +160,11 @@ public final class PlayerStatsPlugin extends JavaPlugin {
         }
     }
 
+    private void scheduleIndexRefresh() {
+        long ticks = config.indexRefreshIntervalSeconds() * 20L;
+        Bukkit.getScheduler().runTaskTimer(this, index::refreshOnline, ticks, ticks);
+    }
+
     /** Die JAR-Datei dieses Plugins (fuer den Auto-Download in den Update-Ordner). */
     public File pluginJarFile() {
         return getFile();
@@ -200,6 +212,10 @@ public final class PlayerStatsPlugin extends JavaPlugin {
 
     public StatService service() {
         return service;
+    }
+
+    public StatIndex index() {
+        return index;
     }
 
     public UpdateChecker updater() {

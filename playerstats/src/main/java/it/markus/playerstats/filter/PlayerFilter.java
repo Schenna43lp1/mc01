@@ -5,11 +5,10 @@ import it.markus.playerstats.exclude.ExcludeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -18,12 +17,12 @@ import java.util.function.Supplier;
  * Reihenfolge der Filter:
  *   1. Whitelist (optional: nur freigegebene Spieler)
  *   2. gebannte Spieler ausschliessen (optional)
- *   3. manuell ausgeschlossene Spieler (/statexclude)
+ *   3. manuell ausgeschlossene Spieler (/playerstats exclude)
  *   4. Letzter-Login-Fenster (optional, fuer Relevanz & Performance)
  *
- * Wichtig: {@link #eligiblePlayers()} ruft Bukkit-Sammlungen ab und muss daher
- * auf dem Hauptthread laufen. Das (teure) Einlesen der eigentlichen Statistiken
- * passiert danach asynchron im {@code StatService}.
+ * {@link #snapshotFilter()} liest die teuren Sammlungen (Whitelist) EINMAL und
+ * liefert ein wiederverwendbares Praedikat – gedacht fuer die Filterung vieler
+ * Index-Eintraege auf dem Hauptthread, ohne die Whitelist je Eintrag neu zu lesen.
  */
 public final class PlayerFilter {
 
@@ -35,7 +34,12 @@ public final class PlayerFilter {
         this.excludes = excludes;
     }
 
-    public List<OfflinePlayer> eligiblePlayers() {
+    /**
+     * Erstellt einen Schnappschuss-Filter. Die Whitelist und das Zeitfenster
+     * werden hier einmal ausgewertet; das zurueckgegebene Praedikat ist danach
+     * pro Spieler guenstig auswertbar. Auf dem Hauptthread aufrufen.
+     */
+    public Predicate<OfflinePlayer> snapshotFilter() {
         PluginConfig cfg = config.get();
 
         Set<UUID> whitelist = null;
@@ -45,33 +49,32 @@ public final class PlayerFilter {
                 whitelist.add(p.getUniqueId());
             }
         }
-
-        long cutoff = cfg.maxLastJoinDays() > 0
+        final Set<UUID> wl = whitelist;
+        final boolean excludeBanned = cfg.excludeBanned();
+        final long cutoff = cfg.maxLastJoinDays() > 0
                 ? System.currentTimeMillis() - cfg.maxLastJoinDays() * 86_400_000L
                 : -1L;
 
-        List<OfflinePlayer> result = new ArrayList<>();
-        for (OfflinePlayer p : Bukkit.getOfflinePlayers()) {
+        return p -> {
             if (p.getName() == null) {
-                continue;
+                return false;
             }
-            if (cfg.excludeBanned() && p.isBanned()) {
-                continue;
+            if (excludeBanned && p.isBanned()) {
+                return false;
             }
             if (excludes.isExcluded(p.getUniqueId())) {
-                continue;
+                return false;
             }
-            if (whitelist != null && !whitelist.contains(p.getUniqueId())) {
-                continue;
+            if (wl != null && !wl.contains(p.getUniqueId())) {
+                return false;
             }
             if (cutoff > 0) {
                 long lastSeen = p.getLastSeen();
                 if (lastSeen > 0 && lastSeen < cutoff) {
-                    continue;
+                    return false;
                 }
             }
-            result.add(p);
-        }
-        return result;
+            return true;
+        };
     }
 }

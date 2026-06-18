@@ -44,6 +44,9 @@ public final class PluginConfig {
     private final boolean showMedals;
     private final int topPageSize;
 
+    private final int indexRefreshIntervalSeconds;
+    private final int indexWarmupPerTick;
+
     private final String storageType;
     private final int flushIntervalSeconds;
     private final String tablePrefix;
@@ -101,6 +104,9 @@ public final class PluginConfig {
         this.abbreviateNumbers = c.getBoolean("display.abbreviate-numbers", false);
         this.showMedals = c.getBoolean("display.show-medals", true);
         this.topPageSize = Math.max(1, c.getInt("display.top-page-size", 10));
+
+        this.indexRefreshIntervalSeconds = Math.max(30, c.getInt("index.refresh-interval-seconds", 300));
+        this.indexWarmupPerTick = Math.max(0, c.getInt("index.warmup-per-tick", 5));
 
         this.storageType = c.getString("storage.type", "yaml");
         this.flushIntervalSeconds = Math.max(5, c.getInt("storage.flush-interval-seconds", 30));
@@ -240,6 +246,14 @@ public final class PluginConfig {
 
     public int topPageSize() {
         return topPageSize;
+    }
+
+    public int indexRefreshIntervalSeconds() {
+        return indexRefreshIntervalSeconds;
+    }
+
+    public int indexWarmupPerTick() {
+        return indexWarmupPerTick;
     }
 
     public String storageType() {

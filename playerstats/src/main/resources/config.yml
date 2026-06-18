@@ -47,6 +47,16 @@ filters:
   # Werte unter diesem Schwellenwert in Top-Listen ausblenden (0 = aus).
   min-value: 0
 
+# --- Leaderboard-Index (Performance & Thread-Safety) ---------------
+# top/rank/average lesen aus einem In-Memory-Index statt live ueber alle
+# Offline-Spieler zu iterieren. Der Index wird nur auf dem Hauptthread befuellt.
+index:
+  # Wie oft Online-Spieler im Index aktualisiert werden (Sekunden, min. 30).
+  refresh-interval-seconds: 300
+  # Offline-Spieler pro Tick beim Aufwaermen nach dem Start (0 = kein Aufwaermen,
+  # dann fuellt sich der Index nur ueber Join/Quit).
+  warmup-per-tick: 5
+
 # --- Speicherung der CUSTOM-Statistiken ----------------------------
 storage:
   # yaml | sqlite | mysql
