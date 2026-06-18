@@ -7,7 +7,8 @@ import java.util.logging.Logger;
 
 /**
  * MySQL-/MariaDB-Backend. Benoetigt einen erreichbaren DB-Server
- * (Zugangsdaten in der config.yml unter storage.mysql).
+ * (Zugangsdaten in der config.yml unter storage.mysql). Nutzt einen echten
+ * Connection-Pool (Groesse aus storage.mysql.pool-size).
  */
 public final class MySqlStorage extends JdbcStorage {
 
@@ -16,8 +17,8 @@ public final class MySqlStorage extends JdbcStorage {
     private final String password;
 
     public MySqlStorage(String host, int port, String database, String user, String password,
-                        String tablePrefix, Logger log) {
-        super(tablePrefix, log);
+                        String tablePrefix, int poolSize, Logger log) {
+        super(tablePrefix, log, poolSize);
         this.url = "jdbc:mysql://" + host + ":" + port + "/" + database
                 + "?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf8";
         this.user = user;

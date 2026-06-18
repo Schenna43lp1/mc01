@@ -21,7 +21,8 @@ public final class StorageFactory {
             case "sqlite" -> new SqliteStorage(dataFolder, config.tablePrefix(), log);
             case "mysql" -> new MySqlStorage(
                     config.mysqlHost(), config.mysqlPort(), config.mysqlDatabase(),
-                    config.mysqlUser(), config.mysqlPassword(), config.tablePrefix(), log);
+                    config.mysqlUser(), config.mysqlPassword(), config.tablePrefix(),
+                    config.mysqlPoolSize(), log);
             case "yaml" -> new YamlStorage(dataFolder);
             default -> {
                 log.warning("Unbekannter storage.type '" + type + "' – nutze YAML.");

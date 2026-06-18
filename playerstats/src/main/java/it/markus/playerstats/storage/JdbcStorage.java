@@ -14,20 +14,25 @@ import java.util.logging.Logger;
  * Gemeinsame JDBC-Basis fuer SQLite und MySQL.
  *
  * Tabelle: &lt;prefix&gt;custom_stats(uuid, stat_key, value), PK(uuid, stat_key).
- * Es wird pro Operation eine Verbindung geoeffnet/geschlossen – fuer die
- * periodischen Batch-Schreibvorgaenge voellig ausreichend (kein Pool noetig).
+ * Verbindungen kommen aus einem {@link ConnectionPool} (kein Oeffnen/Schliessen
+ * pro Operation, kein geteiltes Single-Connection ueber Threads). Alle Queries
+ * sind PreparedStatements mit Parametern – keine String-Konkatenation von
+ * Spielernamen/-UUIDs.
  */
 public abstract class JdbcStorage implements StorageProvider {
 
     protected final Logger log;
     protected final String table;
+    private final int poolSize;
+    private ConnectionPool pool;
 
-    protected JdbcStorage(String tablePrefix, Logger log) {
+    protected JdbcStorage(String tablePrefix, Logger log, int poolSize) {
         this.log = log;
         this.table = tablePrefix + "custom_stats";
+        this.poolSize = poolSize;
     }
 
-    /** Oeffnet eine frische Verbindung zum jeweiligen Backend. */
+    /** Oeffnet eine frische Verbindung zum jeweiligen Backend (vom Pool genutzt). */
     protected abstract Connection connect() throws SQLException;
 
     /** Vollqualifizierter Treiber-Klassenname (fuer Class.forName). */
@@ -52,8 +57,12 @@ public abstract class JdbcStorage implements StorageProvider {
         } catch (ClassNotFoundException ignored) {
             // Treiber registriert sich i. d. R. selbst via SPI.
         }
-        try (Connection c = connect(); Statement s = c.createStatement()) {
+        this.pool = new ConnectionPool(this::connect, poolSize);
+        Connection c = pool.borrow();
+        try (Statement s = c.createStatement()) {
             s.execute(createTableSql());
+        } finally {
+            pool.release(c);
         }
     }
 
@@ -61,8 +70,8 @@ public abstract class JdbcStorage implements StorageProvider {
     public Map<UUID, Map<String, Long>> loadAll() throws Exception {
         Map<UUID, Map<String, Long>> result = new LinkedHashMap<>();
         String sql = "SELECT uuid, stat_key, value FROM " + table;
-        try (Connection c = connect();
-             Statement s = c.createStatement();
+        Connection c = pool.borrow();
+        try (Statement s = c.createStatement();
              ResultSet rs = s.executeQuery(sql)) {
             while (rs.next()) {
                 try {
@@ -73,6 +82,8 @@ public abstract class JdbcStorage implements StorageProvider {
                     // ungueltige UUID -> ueberspringen
                 }
             }
+        } finally {
+            pool.release(c);
         }
         return result;
     }
@@ -82,20 +93,32 @@ public abstract class JdbcStorage implements StorageProvider {
         if (dirty.isEmpty()) {
             return;
         }
-        try (Connection c = connect();
-             PreparedStatement ps = c.prepareStatement(upsertSql())) {
+        Connection c = pool.borrow();
+        try {
             c.setAutoCommit(false);
-            for (Map.Entry<UUID, Map<String, Long>> e : dirty.entrySet()) {
-                String uuid = e.getKey().toString();
-                for (Map.Entry<String, Long> stat : e.getValue().entrySet()) {
-                    ps.setString(1, uuid);
-                    ps.setString(2, stat.getKey());
-                    ps.setLong(3, stat.getValue());
-                    ps.addBatch();
+            try (PreparedStatement ps = c.prepareStatement(upsertSql())) {
+                for (Map.Entry<UUID, Map<String, Long>> e : dirty.entrySet()) {
+                    String uuid = e.getKey().toString();
+                    for (Map.Entry<String, Long> stat : e.getValue().entrySet()) {
+                        ps.setString(1, uuid);
+                        ps.setString(2, stat.getKey());
+                        ps.setLong(3, stat.getValue());
+                        ps.addBatch();
+                    }
                 }
+                ps.executeBatch();
+                c.commit();
+            } catch (SQLException ex) {
+                c.rollback();
+                throw ex;
             }
-            ps.executeBatch();
-            c.commit();
+        } finally {
+            try {
+                c.setAutoCommit(true);
+            } catch (SQLException ignored) {
+                // egal
+            }
+            pool.release(c);
         }
     }
 
@@ -104,17 +127,22 @@ public abstract class JdbcStorage implements StorageProvider {
         String sql = key == null
                 ? "DELETE FROM " + table + " WHERE uuid = ?"
                 : "DELETE FROM " + table + " WHERE uuid = ? AND stat_key = ?";
-        try (Connection c = connect();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+        Connection c = pool.borrow();
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, uuid.toString());
             if (key != null) {
                 ps.setString(2, key);
             }
             ps.executeUpdate();
+        } finally {
+            pool.release(c);
         }
     }
 
     @Override
     public void close() {
+        if (pool != null) {
+            pool.close();
+        }
     }
 }

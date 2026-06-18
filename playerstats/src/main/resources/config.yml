@@ -70,6 +70,8 @@ storage:
     user: root
     password: ""
     table-prefix: "ps_"
+    # Groesse des Connection-Pools (nur MySQL).
+    pool-size: 5
 
 # --- Event-getrackte CUSTOM-Statistiken ----------------------------
 custom:

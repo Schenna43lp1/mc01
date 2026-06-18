@@ -55,6 +55,7 @@ public final class PluginConfig {
     private final String mysqlDatabase;
     private final String mysqlUser;
     private final String mysqlPassword;
+    private final int mysqlPoolSize;
 
     private final boolean trackElytraTime;
     private final boolean trackArrowAccuracy;
@@ -116,6 +117,7 @@ public final class PluginConfig {
         this.mysqlDatabase = c.getString("storage.mysql.database", "playerstats");
         this.mysqlUser = c.getString("storage.mysql.user", "root");
         this.mysqlPassword = c.getString("storage.mysql.password", "");
+        this.mysqlPoolSize = Math.max(1, c.getInt("storage.mysql.pool-size", 5));
 
         this.trackElytraTime = c.getBoolean("custom.track-elytra-time", true);
         this.trackArrowAccuracy = c.getBoolean("custom.track-arrow-accuracy", true);
@@ -286,6 +288,10 @@ public final class PluginConfig {
 
     public String mysqlPassword() {
         return mysqlPassword;
+    }
+
+    public int mysqlPoolSize() {
+        return mysqlPoolSize;
     }
 
     public boolean trackElytraTime() {
