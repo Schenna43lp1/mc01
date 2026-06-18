@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PlayerStats – Konfigurierbare Spielerstatistiken für Paper</title>
+<meta name="description" content="PlayerStats ist ein Paper-Plugin für Minecraft 1.21+: konfigurierbare Spielerstatistiken mit Einheiten, Lokalisierung, Styling, Top-Listen, Vergleichen und SQLite/MySQL-Speicher." />
+<meta name="theme-color" content="#0d1117" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="PlayerStats – Spielerstatistiken für Minecraft" />
+<meta property="og:description" content="40+ konfigurierbare Statistiken, Top-Listen, Vergleiche, Custom-Tracking & MySQL-Support für Paper 1.21+." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --bg:        #0d1117;
+    --bg-soft:   #131a23;
+    --panel:     #161d28;
+    --panel-2:   #1b2330;
+    --border:    #232d3b;
+    --border-lit:#2e3a4d;
+    --text:      #e6edf3;
+    --muted:     #8b97a7;
+    --faint:     #5b6675;
+    --green:     #55ff55;
+    --green-d:   #2ecc40;
+    --gold:      #ffb454;
+    --aqua:      #5bd6ff;
+    --red:       #ff6b6b;
+    --shadow:    0 10px 40px -12px rgba(0,0,0,.7);
+    --radius:    16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  a { color: inherit; text-decoration: none; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Background glow ---------- */
+  .bg-fx {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(620px circle at 15% -5%, rgba(85,255,85,.10), transparent 60%),
+      radial-gradient(680px circle at 92% 8%, rgba(91,214,255,.08), transparent 55%),
+      radial-gradient(800px circle at 50% 110%, rgba(255,180,84,.06), transparent 60%);
+  }
+
+  /* ---------- Nav ---------- */
+  header.nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(13,17,23,.72);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; font-size: 1.12rem; letter-spacing: -.01em; }
+  .brand .cube {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--green), var(--green-d));
+    display: grid; place-items: center; font-size: 17px;
+    box-shadow: 0 4px 14px -4px rgba(85,255,85,.6);
+  }
+  .brand b { color: var(--green); }
+  .nav-links { display: flex; align-items: center; gap: 30px; }
+  .nav-links a.link { color: var(--muted); font-weight: 500; font-size: .94rem; transition: color .15s; }
+  .nav-links a.link:hover { color: var(--text); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: .92rem;
+    border: 1px solid var(--border-lit); transition: all .18s; cursor: pointer; white-space: nowrap;
+  }
+  .btn-ghost { background: var(--panel); color: var(--text); }
+  .btn-ghost:hover { background: var(--panel-2); border-color: #3a4760; }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--green), var(--green-d));
+    color: #06210a; border-color: transparent; font-weight: 700;
+    box-shadow: 0 6px 20px -6px rgba(85,255,85,.5);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 26px -6px rgba(85,255,85,.6); }
+
+  .nav-toggle { display: none; background: none; border: 0; color: var(--text); font-size: 1.5rem; cursor: pointer; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 96px 0 72px; text-align: center; position: relative; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 999px;
+    background: var(--panel); border: 1px solid var(--border-lit);
+    font-size: .82rem; color: var(--muted); margin-bottom: 28px;
+  }
+  .badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
+  .hero h1 {
+    font-size: clamp(2.4rem, 6vw, 4.3rem); font-weight: 800; letter-spacing: -.03em;
+    line-height: 1.05; margin-bottom: 22px;
+  }
+  .hero h1 .grad {
+    background: linear-gradient(120deg, var(--green) 10%, var(--aqua) 90%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p.lead { font-size: clamp(1.05rem, 2.2vw, 1.3rem); color: var(--muted); max-width: 660px; margin: 0 auto 36px; }
+  .hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .hero-meta { margin-top: 40px; display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; color: var(--faint); font-size: .9rem; }
+  .hero-meta b { color: var(--text); }
+
+  /* ---------- Terminal mockup ---------- */
+  .term {
+    margin: 60px auto 0; max-width: 720px; text-align: left;
+    background: #0a0e14; border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .term-bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--border); }
+  .term-bar i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .term-bar .r { background: #ff5f56; } .term-bar .y { background: #ffbd2e; } .term-bar .g { background: #27c93f; }
+  .term-bar span { margin-left: 10px; color: var(--faint); font-size: .8rem; font-family: 'JetBrains Mono', monospace; }
+  .term-body { padding: 22px 22px 26px; font-family: 'JetBrains Mono', monospace; font-size: .9rem; line-height: 1.85; }
+  .term-body .cmd { color: var(--aqua); }
+  .term-body .cmd::before { content: "> "; color: var(--faint); }
+  .term-body .title { color: var(--gold); font-weight: 700; }
+  .term-body .name { color: var(--gold); }
+  .term-body .num { color: var(--green); }
+  .term-body .rank { color: #ffd95b; }
+  .term-body .gray { color: var(--muted); }
+  .term-body .share { color: var(--aqua); }
+
+  /* ---------- Sections ---------- */
+  section { padding: 80px 0; }
+  .sec-head { text-align: center; max-width: 640px; margin: 0 auto 52px; }
+  .sec-head .kicker { color: var(--green); font-weight: 700; font-size: .82rem; letter-spacing: .12em; text-transform: uppercase; }
+  .sec-head h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -.02em; margin: 12px 0 14px; }
+  .sec-head p { color: var(--muted); font-size: 1.05rem; }
+
+  /* ---------- Feature grid ---------- */
+  .grid { display: grid; gap: 20px; }
+  .feat-grid { grid-template-columns: repeat(3, 1fr); }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 28px; transition: transform .2s, border-color .2s;
+  }
+  .card:hover { transform: translateY(-4px); border-color: var(--border-lit); }
+  .card .ic {
+    width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center;
+    font-size: 22px; margin-bottom: 18px; background: var(--panel-2); border: 1px solid var(--border-lit);
+  }
+  .card h3 { font-size: 1.12rem; font-weight: 700; margin-bottom: 8px; }
+  .card p { color: var(--muted); font-size: .95rem; }
+
+  /* ---------- Stats showcase ---------- */
+  .stat-tabs { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
+  .stat-tab {
+    padding: 9px 18px; border-radius: 999px; background: var(--panel); border: 1px solid var(--border);
+    color: var(--muted); font-weight: 600; font-size: .9rem; cursor: pointer; transition: all .15s;
+  }
+  .stat-tab:hover { color: var(--text); border-color: var(--border-lit); }
+  .stat-tab.active { background: rgba(85,255,85,.12); border-color: var(--green-d); color: var(--green); }
+  .stat-grid { grid-template-columns: repeat(4, 1fr); }
+  .stat-chip {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;
+  }
+  .stat-chip .id { font-family: 'JetBrains Mono', monospace; font-size: .82rem; color: var(--green); }
+  .stat-chip .lbl { font-size: .9rem; color: var(--muted); margin-top: 2px; }
+  .stat-cat-hidden { display: none; }
+  .stat-count { text-align: center; color: var(--faint); font-size: .88rem; margin-top: 26px; }
+
+  /* ---------- Commands ---------- */
+  .cmd-grid { grid-template-columns: 1fr 1fr; }
+  .cmd-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; }
+  .cmd-card .sig { font-family: 'JetBrains Mono', monospace; font-size: .96rem; color: var(--aqua); font-weight: 700; word-break: break-word; }
+  .cmd-card .alias { font-size: .78rem; color: var(--faint); margin-left: 8px; }
+  .cmd-card p { color: var(--muted); font-size: .93rem; margin-top: 10px; }
+  .perm-row { display: inline-flex; align-items: center; gap: 7px; margin-top: 14px; font-size: .8rem; color: var(--faint); }
+  .perm-pill { font-family: 'JetBrains Mono', monospace; background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; padding: 2px 8px; color: var(--muted); }
+
+  /* ---------- Config / split ---------- */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+  .config-list { list-style: none; display: flex; flex-direction: column; gap: 18px; }
+  .config-list li { display: flex; gap: 14px; }
+  .config-list .ci { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--border-lit); display: grid; place-items: center; font-size: 16px; }
+  .config-list h4 { font-size: 1rem; font-weight: 700; }
+  .config-list p { color: var(--muted); font-size: .92rem; }
+
+  .codebox { background: #0a0e14; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  .codebox-head { padding: 11px 16px; background: var(--panel); border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: var(--faint); }
+  .codebox pre { padding: 20px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: .82rem; line-height: 1.7; }
+  .codebox .k { color: var(--aqua); }
+  .codebox .v { color: var(--green); }
+  .codebox .c { color: var(--faint); font-style: italic; }
+  .codebox .s { color: var(--gold); }
+
+  /* ---------- Install ---------- */
+  .steps { counter-reset: step; display: grid; gap: 18px; max-width: 760px; margin: 0 auto; }
+  .step { display: flex; gap: 20px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 26px; align-items: flex-start; }
+  .step::before {
+    counter-increment: step; content: counter(step);
+    flex: 0 0 auto; width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--green), var(--green-d)); color: #06210a;
+    font-weight: 800; display: grid; place-items: center; font-family: 'JetBrains Mono', monospace;
+  }
+  .step h4 { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+  .step p { color: var(--muted); font-size: .93rem; }
+  .step code { background: var(--panel-2); border: 1px solid var(--border); padding: 1px 7px; border-radius: 5px; font-size: .85rem; color: var(--green); }
+
+  /* ---------- Footer ---------- */
+  footer { border-top: 1px solid var(--border); padding: 56px 0 40px; margin-top: 40px; }
+  .foot-grid { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 30px; }
+  .foot-brand { max-width: 320px; }
+  .foot-brand p { color: var(--muted); font-size: .92rem; margin-top: 12px; }
+  .foot-col h5 { font-size: .82rem; text-transform: uppercase; letter-spacing: .1em; color: var(--faint); margin-bottom: 14px; }
+  .foot-col a { display: block; color: var(--muted); font-size: .93rem; margin-bottom: 9px; transition: color .15s; }
+  .foot-col a:hover { color: var(--green); }
+  .foot-bottom { margin-top: 44px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--faint); font-size: .85rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+  /* ---------- Reveal animation ---------- */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 900px) {
+    .feat-grid { grid-template-columns: repeat(2, 1fr); }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .cmd-grid, .split { grid-template-columns: 1fr; }
+    .split { gap: 28px; }
+  }
+  @media (max-width: 640px) {
+    .nav-links { position: fixed; inset: 64px 0 auto 0; flex-direction: column; align-items: stretch; gap: 0;
+      background: var(--bg-soft); border-bottom: 1px solid var(--border); padding: 8px 24px 20px; display: none; }
+    .nav-links.open { display: flex; }
+    .nav-links a.link { padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .nav-links .btn { margin-top: 12px; justify-content: center; }
+    .nav-toggle { display: block; }
+    .feat-grid, .stat-grid { grid-template-columns: 1fr; }
+    section { padding: 60px 0; }
+    .hero { padding: 64px 0 48px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="bg-fx"></div>
+
+<!-- ============ NAV ============ -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a href="#top" class="brand"><span class="cube">📊</span> Player<b>Stats</b></a>
+    <nav class="nav-links" id="navLinks">
+      <a class="link" href="#features">Features</a>
+      <a class="link" href="#stats">Statistiken</a>
+      <a class="link" href="#commands">Befehle</a>
+      <a class="link" href="#config">Konfiguration</a>
+      <a class="link" href="#install">Installation</a>
+      <a class="btn btn-primary" href="https://github.com/Schenna43lp1/mc01/releases" target="_blank" rel="noopener">⬇ Download</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Menü">☰</button>
+  </div>
+</header>
+
+<main id="top">
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap">
+      <span class="badge"><span class="dot"></span> Version 1.0.1 · Paper 1.21+ · Java 25</span>
+      <h1>Spielerstatistiken,<br><span class="grad">die mitspielen.</span></h1>
+      <p class="lead">
+        PlayerStats bringt 40+ konfigurierbare Statistiken auf deinen Paper-Server –
+        mit Top-Listen, Vergleichen, eigenem Event-Tracking, Lokalisierung und MySQL-Support.
+      </p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="https://github.com/Schenna43lp1/mc01/releases" target="_blank" rel="noopener">⬇ Plugin herunterladen</a>
+        <a class="btn btn-ghost" href="https://github.com/Schenna43lp1/mc01" target="_blank" rel="noopener">★ Auf GitHub ansehen</a>
+      </div>
+      <div class="hero-meta">
+        <span><b>40+</b> Statistiken</span>
+        <span><b>3</b> Speicher-Backends</span>
+        <span><b>4</b> Befehle</span>
+        <span><b>0</b> Abhängigkeiten</span>
+      </div>
+
+      <!-- Terminal mockup -->
+      <div class="term reveal">
+        <div class="term-bar">
+          <i class="r"></i><i class="y"></i><i class="g"></i>
+          <span>Minecraft · Chat</span>
+        </div>
+        <div class="term-body">
+          <div class="cmd">/playerstats diamonds top</div>
+          <div><span class="title">Top 24</span> <span class="gray">—</span> <span class="name">Diamanten abgebaut</span> <span class="gray">(Seite 1/3)</span></div>
+          <div><span class="rank">🥇</span> <span class="name">Steve</span> <span class="gray">—</span> <span class="num">1.842</span></div>
+          <div><span class="rank">🥈</span> <span class="name">Alex</span> <span class="gray">—</span> <span class="num">1.503</span></div>
+          <div><span class="rank">🥉</span> <span class="name">Notch</span> <span class="gray">—</span> <span class="num">987</span></div>
+          <div><span class="rank">#4</span> <span class="name">Herobrine</span> <span class="gray">—</span> <span class="num">640</span></div>
+          <div style="margin-top:8px"><span class="cmd">/playerstats playtime me</span></div>
+          <div><span class="gray">Deine Statistik</span></div>
+          <div><span class="name">Spielzeit</span><span class="gray">:</span> <span class="num">3d 7h 12m</span>  <span class="share">[Teilen]</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="kicker">Funktionen</span>
+        <h2>Alles, was eine Statistik braucht</h2>
+        <p>Von Vanilla-Werten bis zu selbst getrackten Highscores – flexibel, lokalisiert und zur Laufzeit neu ladbar.</p>
+      </div>
+      <div class="grid feat-grid">
+        <div class="card reveal"><div class="ic">🏆</div><h3>Top-Listen & Server-Gesamt</h3><p>Ranglisten mit Paginierung, Medaillen für die Plätze 1–3 und aggregierte Serverwerte über alle Spieler.</p></div>
+        <div class="card reveal"><div class="ic">⚖️</div><h3>Spieler-Vergleich</h3><p><code>/statcompare</code> stellt zwei Spieler nebeneinander und zeigt Differenz und Führung an.</p></div>
+        <div class="card reveal"><div class="ic">🎯</div><h3>Eigenes Event-Tracking</h3><p>Killstreaks, Login-Streaks, Elytra-Flugzeit, Trefferquote, seltene Blöcke u. v. m. – live mitgezählt.</p></div>
+        <div class="card reveal"><div class="ic">🌍</div><h3>Lokalisierung</h3><p>Vanilla-Statistiken werden clientseitig in die Sprache jedes Spielers übersetzt. Eigene Namen per <code>language.yml</code>.</p></div>
+        <div class="card reveal"><div class="ic">📐</div><h3>Smarte Einheiten</h3><p>Zeit, Distanz und Schaden automatisch oder fest formatiert – Ticks→Tage, cm→km, Rohwert→Herzen.</p></div>
+        <div class="card reveal"><div class="ic">🎨</div><h3>Volles Styling</h3><p>Farben als Minecraft-Namen oder Hex, plus Kursiv-, Festtags- und Regenbogen-Modus.</p></div>
+        <div class="card reveal"><div class="ic">💾</div><h3>YAML · SQLite · MySQL</h3><p>Speicher-Backend frei wählbar. Custom-Werte werden gepuffert und periodisch gesammelt geschrieben.</p></div>
+        <div class="card reveal"><div class="ic">🔧</div><h3>Konfigurierbare Gruppen</h3><p>Block- und Distanz-Gruppen frei erweiterbar – auch für neue Minecraft-Versionen ohne Code-Änderung.</p></div>
+        <div class="card reveal"><div class="ic">🔁</div><h3>Reload zur Laufzeit</h3><p>Config, Sprache und Gruppen per <code>/playerstats reload</code> ohne Server-Neustart aktualisieren.</p></div>
+        <div class="card reveal"><div class="ic">🚫</div><h3>Filter & Ausschlüsse</h3><p>Whitelist, gebannte Spieler ausblenden, Mindestwerte und manuell ausgeschlossene Spieler.</p></div>
+        <div class="card reveal"><div class="ic">📣</div><h3>Teilen im Chat</h3><p>Klickbarer <span style="color:var(--aqua)">[Teilen]</span>-Button broadcastet das letzte Ergebnis an alle.</p></div>
+        <div class="card reveal"><div class="ic">⬆️</div><h3>Update-Prüfung</h3><p>Optionaler Check via GitHub-Releases, mit OP-Benachrichtigung beim Beitreten.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STATS ============ -->
+  <section id="stats" style="background:var(--bg-soft); border-block:1px solid var(--border)">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="kicker">Katalog</span>
+        <h2>40+ Statistiken, sofort einsatzbereit</h2>
+        <p>Vanilla-Werte, summierte Gruppen, eigene getrackte Highscores und berechnete Kennzahlen.</p>
+      </div>
+
+      <div class="stat-tabs reveal">
+        <button class="stat-tab active" data-cat="all">Alle</button>
+        <button class="stat-tab" data-cat="vanilla">Vanilla</button>
+        <button class="stat-tab" data-cat="group">Gruppen</button>
+        <button class="stat-tab" data-cat="custom">Custom</button>
+        <button class="stat-tab" data-cat="computed">Berechnet</button>
+      </div>
+
+      <div class="grid stat-grid" id="statGrid"><!-- injected by JS --></div>
+      <p class="stat-count" id="statCount"></p>
+    </div>
+  </section>
+
+  <!-- ============ COMMANDS ============ -->
+  <section id="commands">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="kicker">Befehle</span>
+        <h2>Vier Befehle, voll Tab-vervollständigt</h2>
+        <p>Jeder Befehl ist berechtigungsgesteuert – Abfragen sind standardmäßig für alle erlaubt.</p>
+      </div>
+      <div class="grid cmd-grid">
+        <div class="cmd-card reveal">
+          <div class="sig">/playerstats &lt;stat&gt; [me|top|server|player &lt;name&gt;]<span class="alias">pstats · pstat</span></div>
+          <p>Zeigt eigene und fremde Werte, Top-Listen und Server-Gesamt. Dazu <code>list</code>, <code>info</code>, <code>share</code> und <code>reload</code>.</p>
+          <div class="perm-row">🔓 <span class="perm-pill">playerstats.stat</span> standardmäßig erlaubt</div>
+        </div>
+        <div class="cmd-card reveal">
+          <div class="sig">/statcompare &lt;stat&gt; &lt;spieler&gt; [spieler2]</div>
+          <p>Vergleicht eine Statistik zweier Spieler nebeneinander und zeigt Differenz und Führenden.</p>
+          <div class="perm-row">🔓 <span class="perm-pill">playerstats.stat</span> standardmäßig erlaubt</div>
+        </div>
+        <div class="cmd-card reveal">
+          <div class="sig">/statexclude &lt;add|remove|list&gt; [spieler]</div>
+          <p>Schließt Spieler aus Top- und Server-Statistiken aus – ideal für Admin- oder Bot-Accounts.</p>
+          <div class="perm-row">🔒 <span class="perm-pill">playerstats.exclude</span> nur OP</div>
+        </div>
+        <div class="cmd-card reveal">
+          <div class="sig">/statreset &lt;spieler&gt; [stat|all]</div>
+          <p>Setzt die getrackten CUSTOM-Statistiken eines Spielers zurück – einzeln oder komplett.</p>
+          <div class="perm-row">🔒 <span class="perm-pill">playerstats.reset</span> nur OP</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONFIG ============ -->
+  <section id="config" style="background:var(--bg-soft); border-block:1px solid var(--border)">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="kicker">Konfiguration</span>
+        <h2>Eine Datei, voll unter Kontrolle</h2>
+        <p>Alles in der <code>config.yml</code> – zur Laufzeit neu ladbar (Backend-Wechsel ausgenommen).</p>
+      </div>
+      <div class="split">
+        <ul class="config-list reveal">
+          <li><span class="ci">📐</span><div><h4>Einheiten</h4><p>Zeit, Distanz und Schaden frei oder automatisch formatieren.</p></div></li>
+          <li><span class="ci">🎨</span><div><h4>Styling</h4><p>Farben (Name oder Hex), Kursiv, Festtags- und Regenbogen-Modus.</p></div></li>
+          <li><span class="ci">💾</span><div><h4>Speicher</h4><p>YAML, SQLite oder MySQL mit konfigurierbarem Flush-Intervall.</p></div></li>
+          <li><span class="ci">🎯</span><div><h4>Custom-Tracking</h4><p>Elytra-Zeit, Trefferquote, seltene Blöcke einzeln an-/abschaltbar.</p></div></li>
+          <li><span class="ci">🚫</span><div><h4>Filter</h4><p>Whitelist, gebannte Spieler, Mindestwerte und Listengrößen.</p></div></li>
+        </ul>
+        <div class="codebox reveal">
+          <div class="codebox-head">config.yml</div>
+<pre><span class="c"># --- Einheiten ---</span>
+<span class="k">units</span>:
+  <span class="k">time</span>: <span class="v">auto</span>        <span class="c"># ticks…days | auto</span>
+  <span class="k">distance</span>: <span class="v">blocks</span>   <span class="c"># cm | blocks | km | auto</span>
+  <span class="k">damage</span>: <span class="v">hearts</span>    <span class="c"># raw | hp | hearts</span>
+
+<span class="c"># --- Styling ---</span>
+<span class="k">style</span>:
+  <span class="k">number-color</span>: <span class="s">"#55FF55"</span>
+  <span class="k">stat-name-color</span>: <span class="v">gold</span>
+  <span class="k">rainbow</span>: <span class="v">false</span>
+
+<span class="c"># --- Speicher ---</span>
+<span class="k">storage</span>:
+  <span class="k">type</span>: <span class="v">yaml</span>        <span class="c"># yaml | sqlite | mysql</span>
+  <span class="k">flush-interval-seconds</span>: <span class="v">30</span>
+
+<span class="c"># --- Custom-Tracking ---</span>
+<span class="k">custom</span>:
+  <span class="k">track-elytra-time</span>: <span class="v">true</span>
+  <span class="k">track-arrow-accuracy</span>: <span class="v">true</span></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INSTALL ============ -->
+  <section id="install">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="kicker">Loslegen</span>
+        <h2>In zwei Minuten installiert</h2>
+        <p>Keine externen Abhängigkeiten – die JDBC-Treiber sind bereits ins JAR gebündelt.</p>
+      </div>
+      <div class="steps">
+        <div class="step reveal"><div><h4>JAR herunterladen</h4><p>Lade die neueste <code>player-stats.jar</code> aus den <a href="https://github.com/Schenna43lp1/mc01/releases" target="_blank" rel="noopener" style="color:var(--green)">GitHub-Releases</a>.</p></div></div>
+        <div class="step reveal"><div><h4>In den Plugins-Ordner legen</h4><p>Verschiebe die JAR nach <code>plugins/</code> auf deinem Paper-Server (Minecraft 1.21+).</p></div></div>
+        <div class="step reveal"><div><h4>Server starten</h4><p>Beim Start wird automatisch eine <code>config.yml</code> und <code>language.yml</code> erzeugt.</p></div></div>
+        <div class="step reveal"><div><h4>Anpassen & neu laden</h4><p>Werte ändern und mit <code>/playerstats reload</code> sofort übernehmen. Fertig!</p></div></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a href="#top" class="brand"><span class="cube">📊</span> Player<b>Stats</b></a>
+        <p>Konfigurierbare Spielerstatistiken für Paper-Server – mit Einheiten, Lokalisierung, Styling und Filtern.</p>
+      </div>
+      <div class="foot-col">
+        <h5>Plugin</h5>
+        <a href="#features">Features</a>
+        <a href="#stats">Statistiken</a>
+        <a href="#commands">Befehle</a>
+        <a href="#config">Konfiguration</a>
+      </div>
+      <div class="foot-col">
+        <h5>Ressourcen</h5>
+        <a href="https://github.com/Schenna43lp1/mc01" target="_blank" rel="noopener">GitHub-Repository</a>
+        <a href="https://github.com/Schenna43lp1/mc01/releases" target="_blank" rel="noopener">Releases / Download</a>
+        <a href="#install">Installation</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© <span id="year"></span> PlayerStats · von Markus</span>
+      <span>Gebaut für Paper 1.21+ · Java 25</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ---- Year ----
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ---- Mobile nav ----
+  const toggle = document.getElementById('navToggle');
+  const links = document.getElementById('navLinks');
+  toggle.addEventListener('click', () => links.classList.toggle('open'));
+  links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => links.classList.remove('open')));
+
+  // ---- Stats data ----
+  const STATS = [
+    // Vanilla
+    {id:'playtime', lbl:'Spielzeit', cat:'vanilla'},
+    {id:'deaths', lbl:'Tode', cat:'vanilla'},
+    {id:'mob_kills', lbl:'Mob-Kills', cat:'vanilla'},
+    {id:'player_kills', lbl:'Spieler-Kills', cat:'vanilla'},
+    {id:'damage_dealt', lbl:'Schaden ausgeteilt', cat:'vanilla'},
+    {id:'damage_taken', lbl:'Schaden erhalten', cat:'vanilla'},
+    {id:'jumps', lbl:'Sprünge', cat:'vanilla'},
+    {id:'fish_caught', lbl:'Fische gefangen', cat:'vanilla'},
+    {id:'animals_bred', lbl:'Tiere gezüchtet', cat:'vanilla'},
+    {id:'items_enchanted', lbl:'Items verzaubert', cat:'vanilla'},
+    {id:'raids_won', lbl:'Raids gewonnen', cat:'vanilla'},
+    {id:'time_since_death', lbl:'Zeit seit Tod', cat:'vanilla'},
+    {id:'walked', lbl:'Gelaufen', cat:'vanilla'},
+    {id:'sprinted', lbl:'Gesprintet', cat:'vanilla'},
+    {id:'horse_distance', lbl:'Pferd-Distanz', cat:'vanilla'},
+    {id:'boat_distance', lbl:'Boot-Distanz', cat:'vanilla'},
+    {id:'aviate_distance', lbl:'Elytra-Distanz', cat:'vanilla'},
+    {id:'swim_distance', lbl:'Schwimm-Distanz', cat:'vanilla'},
+    {id:'zombies_killed', lbl:'Zombie-Kills', cat:'vanilla'},
+    {id:'skeletons_killed', lbl:'Skelett-Kills', cat:'vanilla'},
+    {id:'creepers_killed', lbl:'Creeper-Kills', cat:'vanilla'},
+    {id:'first_join', lbl:'Erster Beitritt', cat:'vanilla'},
+    {id:'last_login', lbl:'Zuletzt online', cat:'vanilla'},
+    // Groups
+    {id:'total_distance', lbl:'Gesamtdistanz', cat:'group'},
+    {id:'total_blocks', lbl:'Abgebaute Blöcke', cat:'group'},
+    {id:'wood', lbl:'Holz abgebaut', cat:'group'},
+    {id:'ores', lbl:'Erze abgebaut', cat:'group'},
+    {id:'diamonds', lbl:'Diamanten abgebaut', cat:'group'},
+    {id:'ancient_debris', lbl:'Ancient Debris', cat:'group'},
+    // Custom
+    {id:'login_streak', lbl:'Login-Streak', cat:'custom'},
+    {id:'login_streak_longest', lbl:'Längster Login-Streak', cat:'custom'},
+    {id:'killstreak', lbl:'Killstreak', cat:'custom'},
+    {id:'killstreak_longest', lbl:'Längste Killserie', cat:'custom'},
+    {id:'elytra_time', lbl:'Elytra-Flugzeit', cat:'custom'},
+    {id:'rare_blocks', lbl:'Seltene Blöcke', cat:'custom'},
+    {id:'plants_harvested', lbl:'Pflanzen geerntet', cat:'custom'},
+    {id:'honey_collected', lbl:'Honig gesammelt', cat:'custom'},
+    {id:'berries_collected', lbl:'Beeren gesammelt', cat:'custom'},
+    {id:'session_record', lbl:'Blöcke-Rekord (Session)', cat:'custom'},
+    {id:'headshots', lbl:'Headshots', cat:'custom'},
+    {id:'arrows_shot', lbl:'Pfeile abgeschossen', cat:'custom'},
+    {id:'arrows_hit', lbl:'Pfeile getroffen', cat:'custom'},
+    // Computed
+    {id:'kd_ratio', lbl:'K/D-Verhältnis', cat:'computed'},
+    {id:'arrow_accuracy', lbl:'Trefferquote', cat:'computed'},
+  ];
+
+  const grid = document.getElementById('statGrid');
+  const count = document.getElementById('statCount');
+  const catNames = {all:'Statistiken', vanilla:'Vanilla-Statistiken', group:'Gruppen', custom:'Custom-Statistiken', computed:'berechnete Kennzahlen'};
+
+  function render(cat) {
+    const list = cat === 'all' ? STATS : STATS.filter(s => s.cat === cat);
+    grid.innerHTML = list.map(s =>
+      `<div class="stat-chip"><div class="id">${s.id}</div><div class="lbl">${s.lbl}</div></div>`
+    ).join('');
+    count.textContent = `${list.length} ${catNames[cat]} · per /playerstats list jederzeit abrufbar`;
+  }
+  render('all');
+
+  document.querySelectorAll('.stat-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.stat-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      render(tab.dataset.cat);
+    });
+  });
+
+  // ---- Reveal on scroll ----
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
