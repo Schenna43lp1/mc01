@@ -37,7 +37,7 @@ public final class StatResetCommand implements TabExecutor {
             return true;
         }
         if (args.length < 1) {
-            infoText(sender, "Verwendung: /statreset <spieler> [statistik|all]");
+            infoText(sender, "Verwendung: /playerstats reset <spieler> [statistik|all]");
             return true;
         }
 

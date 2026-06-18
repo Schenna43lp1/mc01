@@ -37,7 +37,7 @@ public final class StatExcludeCommand implements TabExecutor {
             return true;
         }
         if (args.length == 0) {
-            infoText(sender, "Verwendung: /statexclude <add|remove|list> [spieler]");
+            infoText(sender, "Verwendung: /playerstats exclude <add|remove|list> [spieler]");
             return true;
         }
 
@@ -45,14 +45,14 @@ public final class StatExcludeCommand implements TabExecutor {
             case "add" -> handleAdd(sender, args);
             case "remove" -> handleRemove(sender, args);
             case "list" -> handleList(sender);
-            default -> infoText(sender, "Verwendung: /statexclude <add|remove|list> [spieler]");
+            default -> infoText(sender, "Verwendung: /playerstats exclude <add|remove|list> [spieler]");
         }
         return true;
     }
 
     private void handleAdd(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            infoText(sender, "Verwendung: /statexclude add <spieler>");
+            infoText(sender, "Verwendung: /playerstats exclude add <spieler>");
             return;
         }
         OfflinePlayer target = Bukkit.getOfflinePlayerIfCached(args[1]);
@@ -70,7 +70,7 @@ public final class StatExcludeCommand implements TabExecutor {
 
     private void handleRemove(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            infoText(sender, "Verwendung: /statexclude remove <spieler>");
+            infoText(sender, "Verwendung: /playerstats exclude remove <spieler>");
             return;
         }
         UUID uuid = resolveUuid(args[1]);

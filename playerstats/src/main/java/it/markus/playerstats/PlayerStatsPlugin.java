@@ -1,9 +1,6 @@
 package it.markus.playerstats;
 
 import it.markus.playerstats.command.StatCommand;
-import it.markus.playerstats.command.StatCompareCommand;
-import it.markus.playerstats.command.StatExcludeCommand;
-import it.markus.playerstats.command.StatResetCommand;
 import it.markus.playerstats.config.PluginConfig;
 import it.markus.playerstats.custom.CustomKeys;
 import it.markus.playerstats.custom.CustomStatService;
@@ -69,9 +66,6 @@ public final class PlayerStatsPlugin extends JavaPlugin {
         this.service = new StatService(this, filter);
 
         bind("playerstats", new StatCommand(this));
-        bind("statexclude", new StatExcludeCommand(this));
-        bind("statreset", new StatResetCommand(this));
-        bind("statcompare", new StatCompareCommand(this));
 
         this.updater = new UpdateChecker(this);
         this.discord = new DiscordNotifier(this);

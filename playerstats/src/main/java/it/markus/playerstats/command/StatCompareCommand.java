@@ -37,7 +37,7 @@ public final class StatCompareCommand implements TabExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
                              @NotNull String label, @NotNull String[] args) {
         if (args.length < 2) {
-            infoText(sender, "Verwendung: /statcompare <statistik> <spieler> [spieler2]");
+            infoText(sender, "Verwendung: /playerstats compare <statistik> <spieler> [spieler2]");
             return true;
         }
         StatDefinition def = plugin.registry().byId(args[0]).orElse(null);

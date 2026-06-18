@@ -277,7 +277,7 @@
   <!-- ============ HERO ============ -->
   <section class="hero">
     <div class="wrap">
-      <span class="badge"><span class="dot"></span> Version 1.0.1 · Paper 1.21+ · Java 25</span>
+      <span class="badge"><span class="dot"></span> Version 1.0.2 · Paper 1.21+ · Java 25</span>
       <h1>Spielerstatistiken,<br><span class="grad">die mitspielen.</span></h1>
       <p class="lead">
         PlayerStats bringt 40+ konfigurierbare Statistiken auf deinen Paper-Server –
@@ -290,7 +290,7 @@
       <div class="hero-meta">
         <span><b>40+</b> Statistiken</span>
         <span><b>3</b> Speicher-Backends</span>
-        <span><b>4</b> Befehle</span>
+        <span><b>12</b> Subcommands</span>
         <span><b>0</b> Abhängigkeiten</span>
       </div>
 
@@ -325,7 +325,7 @@
       </div>
       <div class="grid feat-grid">
         <div class="card reveal"><div class="ic">🏆</div><h3>Top-Listen & Server-Gesamt</h3><p>Ranglisten mit Paginierung, Medaillen für die Plätze 1–3 und aggregierte Serverwerte über alle Spieler.</p></div>
-        <div class="card reveal"><div class="ic">⚖️</div><h3>Spieler-Vergleich</h3><p><code>/statcompare</code> stellt zwei Spieler nebeneinander und zeigt Differenz und Führung an.</p></div>
+        <div class="card reveal"><div class="ic">⚖️</div><h3>Spieler-Vergleich</h3><p><code>/playerstats compare</code> stellt zwei Spieler nebeneinander und zeigt Differenz und Führung an.</p></div>
         <div class="card reveal"><div class="ic">🎯</div><h3>Eigenes Event-Tracking</h3><p>Killstreaks, Login-Streaks, Elytra-Flugzeit, Trefferquote, seltene Blöcke u. v. m. – live mitgezählt.</p></div>
         <div class="card reveal"><div class="ic">🌍</div><h3>Lokalisierung</h3><p>Vanilla-Statistiken werden clientseitig in die Sprache jedes Spielers übersetzt. Eigene Namen per <code>language.yml</code>.</p></div>
         <div class="card reveal"><div class="ic">📐</div><h3>Smarte Einheiten</h3><p>Zeit, Distanz und Schaden automatisch oder fest formatiert – Ticks→Tage, cm→km, Rohwert→Herzen.</p></div>
@@ -335,7 +335,8 @@
         <div class="card reveal"><div class="ic">🔁</div><h3>Reload zur Laufzeit</h3><p>Config, Sprache und Gruppen per <code>/playerstats reload</code> ohne Server-Neustart aktualisieren.</p></div>
         <div class="card reveal"><div class="ic">🚫</div><h3>Filter & Ausschlüsse</h3><p>Whitelist, gebannte Spieler ausblenden, Mindestwerte und manuell ausgeschlossene Spieler.</p></div>
         <div class="card reveal"><div class="ic">📣</div><h3>Teilen im Chat</h3><p>Klickbarer <span style="color:var(--aqua)">[Teilen]</span>-Button broadcastet das letzte Ergebnis an alle.</p></div>
-        <div class="card reveal"><div class="ic">⬆️</div><h3>Update-Prüfung</h3><p>Optionaler Check via GitHub-Releases, mit OP-Benachrichtigung beim Beitreten.</p></div>
+        <div class="card reveal"><div class="ic">⬆️</div><h3>Update-Prüfung</h3><p>Optionaler Check via GitHub-Releases, mit OP-Benachrichtigung beim Beitreten und optionalem Auto-Download.</p></div>
+        <div class="card reveal"><div class="ic">🔔</div><h3>Discord-Webhook</h3><p>Server-Status, Joins/Quits und Update-Hinweise als farbige Embeds in deinen Discord-Channel – pro Ereignis schaltbar.</p></div>
       </div>
     </div>
   </section>
@@ -367,29 +368,64 @@
     <div class="wrap">
       <div class="sec-head reveal">
         <span class="kicker">Befehle</span>
-        <h2>Vier Befehle, voll Tab-vervollständigt</h2>
-        <p>Jeder Befehl ist berechtigungsgesteuert – Abfragen sind standardmäßig für alle erlaubt.</p>
+        <h2>Alles unter einem Befehl: <code>/playerstats</code></h2>
+        <p>Ein einziger Befehl mit Subcommands – vollständig Tab-vervollständigt und berechtigungsgesteuert. <code>/playerstats help</code> zeigt jederzeit die ganze Liste.</p>
       </div>
       <div class="grid cmd-grid">
         <div class="cmd-card reveal">
           <div class="sig">/playerstats &lt;stat&gt; [me|top|server|player &lt;name&gt;]<span class="alias">pstats · pstat</span></div>
-          <p>Zeigt eigene und fremde Werte, Top-Listen und Server-Gesamt. Dazu <code>list</code>, <code>info</code>, <code>share</code> und <code>reload</code>.</p>
+          <p>Eigene und fremde Werte, Top-Listen und Server-Gesamt einer Statistik.</p>
           <div class="perm-row">🔓 <span class="perm-pill">playerstats.stat</span> standardmäßig erlaubt</div>
         </div>
         <div class="cmd-card reveal">
-          <div class="sig">/statcompare &lt;stat&gt; &lt;spieler&gt; [spieler2]</div>
-          <p>Vergleicht eine Statistik zweier Spieler nebeneinander und zeigt Differenz und Führenden.</p>
+          <div class="sig">/playerstats &lt;stat&gt; top [seite]</div>
+          <p>Paginierte Rangliste mit Medaillen für die Plätze 1–3 und klickbarer Navigation.</p>
           <div class="perm-row">🔓 <span class="perm-pill">playerstats.stat</span> standardmäßig erlaubt</div>
         </div>
         <div class="cmd-card reveal">
-          <div class="sig">/statexclude &lt;add|remove|list&gt; [spieler]</div>
+          <div class="sig">/playerstats rank &lt;stat&gt; [spieler]<span class="alias" style="color:var(--green)">neu</span></div>
+          <p>Zeigt den Platz eines Spielers in der Rangliste – inklusive Gesamtanzahl und Wert.</p>
+          <div class="perm-row">🔓 <span class="perm-pill">playerstats.stat</span> standardmäßig erlaubt</div>
+        </div>
+        <div class="cmd-card reveal">
+          <div class="sig">/playerstats average &lt;stat&gt;<span class="alias" style="color:var(--green)">neu</span></div>
+          <p>Server-Durchschnitt einer Statistik über alle gewerteten Spieler.</p>
+          <div class="perm-row">🔓 <span class="perm-pill">playerstats.stat</span> standardmäßig erlaubt</div>
+        </div>
+        <div class="cmd-card reveal">
+          <div class="sig">/playerstats compare &lt;stat&gt; &lt;sp1&gt; [sp2]</div>
+          <p>Stellt zwei Spieler nebeneinander und zeigt Differenz und Führenden.</p>
+          <div class="perm-row">🔓 <span class="perm-pill">playerstats.stat</span> standardmäßig erlaubt</div>
+        </div>
+        <div class="cmd-card reveal">
+          <div class="sig">/playerstats list · search &lt;text&gt; · info &lt;stat&gt;<span class="alias" style="color:var(--green)">search neu</span></div>
+          <p>Den Katalog auflisten, nach Begriffen durchsuchen oder Details (Art, Kategorie, Einheit) ansehen.</p>
+          <div class="perm-row">🔓 <span class="perm-pill">playerstats.stat</span> standardmäßig erlaubt</div>
+        </div>
+        <div class="cmd-card reveal">
+          <div class="sig">/playerstats help · version<span class="alias" style="color:var(--green)">neu</span></div>
+          <p>Vollständige Befehlsübersicht sowie Versions- und Update-Status des Plugins.</p>
+          <div class="perm-row">🔓 <span class="perm-pill">playerstats.stat</span> standardmäßig erlaubt</div>
+        </div>
+        <div class="cmd-card reveal">
+          <div class="sig">/playerstats share</div>
+          <p>Broadcastet dein letztes Ergebnis im Chat – auch per klickbarem <span style="color:var(--aqua)">[Teilen]</span>-Button.</p>
+          <div class="perm-row">🔓 <span class="perm-pill">playerstats.share</span> standardmäßig erlaubt</div>
+        </div>
+        <div class="cmd-card reveal">
+          <div class="sig">/playerstats exclude &lt;add|remove|list&gt; [spieler]</div>
           <p>Schließt Spieler aus Top- und Server-Statistiken aus – ideal für Admin- oder Bot-Accounts.</p>
           <div class="perm-row">🔒 <span class="perm-pill">playerstats.exclude</span> nur OP</div>
         </div>
         <div class="cmd-card reveal">
-          <div class="sig">/statreset &lt;spieler&gt; [stat|all]</div>
+          <div class="sig">/playerstats reset &lt;spieler&gt; [stat|all]</div>
           <p>Setzt die getrackten CUSTOM-Statistiken eines Spielers zurück – einzeln oder komplett.</p>
           <div class="perm-row">🔒 <span class="perm-pill">playerstats.reset</span> nur OP</div>
+        </div>
+        <div class="cmd-card reveal">
+          <div class="sig">/playerstats reload</div>
+          <p>Lädt Konfiguration, Sprache und Gruppen zur Laufzeit neu – ohne Server-Neustart.</p>
+          <div class="perm-row">🔒 <span class="perm-pill">playerstats.reload</span> nur OP</div>
         </div>
       </div>
     </div>
