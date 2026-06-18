@@ -108,14 +108,35 @@ public final class UpdateChecker {
             plugin.getLogger().warning("updater.github-repo ist nicht gesetzt – Pruefung uebersprungen.");
             return null;
         }
-        String json = httpGet("https://api.github.com/repos/" + repo + "/releases/latest");
-        Matcher tag = TAG.matcher(json);
+
+        String scope;
+        if (isPrerelease(cfg.updaterChannel())) {
+            // Kanal "prerelease": neuestes Release JEDER Art (inkl. Beta/Pre-Release).
+            // /releases liefert (unauthentifiziert) alle veroeffentlichten Releases,
+            // neuestes zuerst, ohne Drafts. Wir nehmen das erste Objekt.
+            String json = httpGet("https://api.github.com/repos/" + repo + "/releases?per_page=10");
+            int first = json.indexOf("\"tag_name\"");
+            if (first < 0) {
+                return null;
+            }
+            int second = json.indexOf("\"tag_name\"", first + 1);
+            scope = second < 0 ? json : json.substring(0, second); // nur das erste Release
+        } else {
+            // Kanal "stable": nur stabile, veroeffentlichte Releases.
+            scope = httpGet("https://api.github.com/repos/" + repo + "/releases/latest");
+        }
+
+        Matcher tag = TAG.matcher(scope);
         if (!tag.find()) {
             return null;
         }
-        Matcher jar = JAR_ASSET.matcher(json);
+        Matcher jar = JAR_ASSET.matcher(scope);
         String url = jar.find() ? jar.group(1) : null;
         return new Release(stripV(tag.group(1)), url);
+    }
+
+    private static boolean isPrerelease(String channel) {
+        return "prerelease".equalsIgnoreCase(channel) || "beta".equalsIgnoreCase(channel);
     }
 
     private String httpGet(String url) throws Exception {

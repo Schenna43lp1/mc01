@@ -71,7 +71,7 @@ Alles in der `config.yml` (zur Laufzeit neu ladbar, Backend-Wechsel ausgenommen)
 - **`filters`** – Whitelist, gebannte ausschließen, Mindestwert, Listengröße, Letzter-Login-Fenster.
 - **`storage`** – `yaml` | `sqlite` | `mysql` mit Flush-Intervall (MySQL-Zugang separat).
 - **`custom`** – Elytra-Zeit, Trefferquote, Headshots, seltene Blöcke.
-- **`updater`** – Update-Prüfung via GitHub-Releases, optionaler Auto-Download.
+- **`updater`** – Update-Prüfung via GitHub-Releases, mit wählbarem Kanal (`channel: stable` | `prerelease`) und optionalem Auto-Download.
 - **`discord`** – Webhook-URL und schaltbare Ereignisse. **Webhook-URL ist ein Geheimnis – nie committen!**
 - **`groups`** – frei erweiterbare Material-/Statistik-Gruppen (Ores, Logs, Crops, Distanz).
 

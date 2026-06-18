@@ -85,7 +85,9 @@ updater:
   auto-download: true
   # github | url
   source: github
-  # Bei source: github  ->  "Besitzer/Repo" 
+  # Release-Kanal: stable (nur stabile Releases) | prerelease (auch Beta/Pre-Releases)
+  channel: stable
+  # Bei source: github  ->  "Besitzer/Repo"
   github-repo: "Schenna43lp1/mc01"
 
   download-url: ""

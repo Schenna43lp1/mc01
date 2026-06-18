@@ -1,5 +1,5 @@
 name: PlayerStats
-version: '1.0.2'
+version: '1.0.3'
 main: it.markus.playerstats.PlayerStatsPlugin
 api-version: '1.21'
 description: Zeigt konfigurierbare Spielerstatistiken mit Einheiten, Lokalisierung, Styling und Filtern.

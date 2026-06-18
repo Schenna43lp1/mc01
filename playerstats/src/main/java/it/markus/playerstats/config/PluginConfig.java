@@ -61,6 +61,7 @@ public final class PluginConfig {
     private final boolean updaterNotifyOps;
     private final boolean updaterAutoDownload;
     private final String updaterSource;
+    private final String updaterChannel;
     private final String updaterGithubRepo;
     private final String updaterVersionUrl;
     private final String updaterDownloadUrl;
@@ -118,6 +119,7 @@ public final class PluginConfig {
         this.updaterNotifyOps = c.getBoolean("updater.notify-ops", true);
         this.updaterAutoDownload = c.getBoolean("updater.auto-download", false);
         this.updaterSource = c.getString("updater.source", "github");
+        this.updaterChannel = c.getString("updater.channel", "stable");
         this.updaterGithubRepo = c.getString("updater.github-repo", "");
         this.updaterVersionUrl = c.getString("updater.version-url", "");
         this.updaterDownloadUrl = c.getString("updater.download-url", "");
@@ -298,6 +300,11 @@ public final class PluginConfig {
 
     public String updaterSource() {
         return updaterSource;
+    }
+
+    /** Release-Kanal: "stable" oder "prerelease". */
+    public String updaterChannel() {
+        return updaterChannel;
     }
 
     public String updaterGithubRepo() {
