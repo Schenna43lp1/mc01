@@ -98,5 +98,44 @@ mvn clean package
 - Gebaut für Paper 1.21+ · Java 25.
 
 ---
+🐞 Reporting Bugs
 
+Found a bug?
+
+Please create an Issue with:
+
+Minecraft version
+Paper/Spigot version
+Plugin version
+Error log
+Steps to reproduce
+💡 Feature Requests
+
+Feature ideas are always welcome.
+
+Open an Issue and describe your suggestion.
+
+🤝 Contributing
+
+Pull Requests are welcome!
+
+Fork the repository
+Create a feature branch
+Commit your changes
+Open a Pull Request
+📄 License
+
+This project is licensed under the MIT License.
+
+⭐ Support
+
+If you like this project:
+
+⭐ Star the repository
+
+🍴 Fork it
+
+🐛 Report bugs
+
+💬 Suggest new features
 © PlayerStats · von Markus
