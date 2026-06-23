@@ -5,7 +5,7 @@ Konfigurierbares Spielerstatistik-Plugin für **Paper** (Minecraft 1.21+, Java 2
 YAML/SQLite/MySQL-Speicher, Discord-Webhook und Auto-Updater.
 
 🌐 **Webseite/Doku:** https://schenna43lp1.github.io/mc01/ &nbsp;·&nbsp; ⬇ **Download:** [Releases](https://github.com/Schenna43lp1/mc01/releases)
-
+![Java](https://img.shields.io/badge/Java-21-orange) ![Minecraft](https://img.shields.io/badge/Minecraft-1.21+-green) ![License](https://img.shields.io/github/license/schenna43lp1/mc01) ![Release](https://img.shields.io/github/v/release/schenna43lp1/mc01) ![Issues](https://img.shields.io/github/issues/schenna43lp1/mc01)
 ---
 
 ## Features
